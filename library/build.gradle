@@ -1,0 +1,59 @@
+import java.util.regex.Matcher
+
+apply plugin: 'com.android.library'
+
+def versionName() {
+    String config = 'library/src/main/java/com/qiniu/android/common/Constants.java'
+    String fileContents = new File(config).text
+    Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
+    String version = myMatcher[0][1]
+    println(version)
+    return version
+}
+
+def versionNameToCode(String version) {
+    String v = version.replaceAll(/\./, '')
+    return v.toLong()
+}
+
+String version = versionName()
+int code = versionNameToCode(version)
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion '21.1.2'
+    defaultConfig {
+        //applicationId "com.qiniu.android"
+        minSdkVersion 8
+        targetSdkVersion 21
+        versionCode code
+        versionName version
+    }
+}
+
+dependencies {
+    compile 'com.loopj.android:android-async-http:1.4.6'
+//    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+}
+
+task releaseJar(type: Copy, dependsOn: 'build') {
+    from('build/intermediates/bundles/release')
+    into('../releases')
+    include('classes.jar')
+    rename('classes.jar', 'qiniu-android-sdk-' + version + '.jar')
+}
+
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    def task = project.tasks.create "jar${name.capitalize()}", Jar
+    task.dependsOn variant.javaCompile
+    task.from variant.javaCompile.destinationDir
+    task.exclude '**/R.*',  '**/R$*.*'
+    artifacts.add('archives', task);
+}
+
+setProperty('VERSION_NAME', version)
+setProperty('VERSION_CODE', code)
+
+apply from: '../mvn_push.gradle'

@@ -3,7 +3,7 @@ import java.util.regex.Matcher
 apply plugin: 'com.android.library'
 
 def versionName() {
-    String config = 'library/src/main/java/com/qiniu/android/common/Constants.java'
+    String config = 'library/src/main/java/com/qiniu/android/dns/Version.java'
     String fileContents = new File(config).text
     Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
     String version = myMatcher[0][1]
@@ -24,7 +24,7 @@ android {
     buildToolsVersion '21.1.2'
     defaultConfig {
         //applicationId "com.qiniu.android"
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 21
         versionCode code
         versionName version
@@ -41,7 +41,7 @@ task releaseJar(type: Copy, dependsOn: 'build') {
     from('build/intermediates/bundles/release')
     into('../releases')
     include('classes.jar')
-    rename('classes.jar', 'qiniu-android-sdk-' + version + '.jar')
+    rename('classes.jar', 'qiniu-happy-dns-' + version + '.jar')
 }
 
 android.libraryVariants.all { variant ->

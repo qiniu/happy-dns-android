@@ -218,6 +218,6 @@ public final class DnsMessage {
         if (payload == null) {
             return null;
         }
-        return new Record(payload, type, (int) ttl, System.currentTimeMillis()/1000);
+        return new Record(payload, type, (int) ttl, System.currentTimeMillis() / 1000);
     }
 }

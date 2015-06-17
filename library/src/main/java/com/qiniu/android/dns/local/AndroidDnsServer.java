@@ -7,7 +7,6 @@ import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,12 +97,12 @@ public final class AndroidDnsServer {
         return null;
     }
 
-    public static Resolver defaultResolver(){
+    public static Resolver defaultResolver() {
         InetAddress[] addresses = getByReflection();
-        if (addresses == null){
+        if (addresses == null) {
             addresses = getByCommand();
         }
-        if (addresses == null){
+        if (addresses == null) {
             return null;
         }
         return new Resolver(addresses[0]);

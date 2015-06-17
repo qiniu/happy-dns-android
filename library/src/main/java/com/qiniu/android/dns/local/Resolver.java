@@ -26,7 +26,7 @@ public final class Resolver implements IResolver {
     public Record[] query(Domain domain) throws IOException {
         short id;
         synchronized (random) {
-            id = (short)random.nextInt();
+            id = (short) random.nextInt();
         }
         byte[] query = DnsMessage.buildQuery(domain.domain, id);
         byte[] answer = udpCommunicate(query);

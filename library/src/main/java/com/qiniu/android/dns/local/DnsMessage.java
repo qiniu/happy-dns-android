@@ -190,10 +190,10 @@ public final class DnsMessage {
     }
 
     private static Record readRecord(DataInputStream dis, byte[] data) throws IOException {
-        String name = readName(dis, data);
+        readName(dis, data);
         int type = dis.readUnsignedShort();
 //            class
-        int cls = dis.readUnsignedShort();
+        dis.readUnsignedShort();
 
         long ttl = (((long) dis.readUnsignedShort()) << 16) +
                 dis.readUnsignedShort();
@@ -218,6 +218,6 @@ public final class DnsMessage {
         if (payload == null) {
             return null;
         }
-        return new Record(payload, type, (int) ttl);
+        return new Record(payload, type, (int) ttl, System.currentTimeMillis()/1000);
     }
 }

@@ -1,4 +1,4 @@
-package com.qiniu.android.dns.local;
+package com.qiniu.android.dns.util;
 
 /**
  * Created by bailong on 15/6/16.

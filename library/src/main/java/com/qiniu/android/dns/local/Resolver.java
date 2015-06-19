@@ -1,5 +1,6 @@
 package com.qiniu.android.dns.local;
 
+import com.qiniu.android.dns.DnsException;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.Record;
@@ -24,17 +25,16 @@ public final class Resolver implements IResolver {
 
     @Override
     public Record[] query(Domain domain) throws IOException {
-        short id;
+        int id;
         synchronized (random) {
-            id = (short) random.nextInt();
+            id = random.nextInt() & 0XFF ;
         }
         byte[] query = DnsMessage.buildQuery(domain.domain, id);
         byte[] answer = udpCommunicate(query);
         if (answer == null) {
-            return null;
+            throw new DnsException(domain.domain, "cant get answer");
         }
-        Record[] r = DnsMessage.parseResponse(answer, id);
-        return r;
+        return DnsMessage.parseResponse(answer, id, domain.domain);
     }
 
     private byte[] udpCommunicate(byte[] question) throws IOException {
@@ -47,6 +47,7 @@ public final class Resolver implements IResolver {
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);
             socket.receive(packet);
+
             return packet.getData();
         } finally {
             if (socket != null) {
@@ -54,9 +55,4 @@ public final class Resolver implements IResolver {
             }
         }
     }
-
-//    todo
-//    public byte[] tcpQuery(byte[] question){
-//
-//    }
 }

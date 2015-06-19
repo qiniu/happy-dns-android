@@ -1,6 +1,8 @@
 package com.qiniu.android.dns.local;
 
+import com.qiniu.android.dns.DnsException;
 import com.qiniu.android.dns.Record;
+import com.qiniu.android.dns.util.BitSet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +13,8 @@ import java.io.OutputStream;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.util.HashSet;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 /**
  * reference github/rtreffer/minidns.
@@ -68,27 +72,20 @@ public final class DnsMessage {
         dos.writeShort(1);
     }
 
-    public static Record[] parseResponse(byte[] response, int id) throws IOException {
+    public static Record[] parseResponse(byte[] response, int id, String domain) throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(response);
         DataInputStream dis = new DataInputStream(bis);
         int answerId = dis.readUnsignedShort();
         if (answerId != id) {
-            return null;
+            throw new DnsException(domain, "the answer id " + answerId +" is not match " + id);
         }
         int header = dis.readUnsignedShort();
-//        boolean query = ((header >> 15) & 1) == 0;
-//        int opcode = OPCODE.getOpcode((header >> 11) & 0xf);
-//        authoritativeAnswer = ((header >> 10) & 1) == 1;
-//        truncated = ((header >> 9) & 1) == 1;
         boolean recursionDesired = ((header >> 8) & 1) == 1;
         boolean recursionAvailable = ((header >> 7) & 1) == 1;
         if (!(recursionAvailable && recursionDesired)) {
-            return null;
-        }
+            throw new DnsException(domain,  "the dns server cant support recursion ");
 
-//        checkDisabled = ((header >> 4) & 1) == 1;
-//        responseCode = RESPONSE_CODE.getResponseCode(header & 0xf);
-//        receiveTimestamp = System.currentTimeMillis();
+        }
 
         int questionCount = dis.readUnsignedShort();
         int answerCount = dis.readUnsignedShort();
@@ -96,8 +93,8 @@ public final class DnsMessage {
         dis.readUnsignedShort();
 //        additionalResourceRecordCount
         dis.readUnsignedShort();
-        // ignore questions
 
+//         ignore questions
         readQuestions(dis, response, questionCount);
 
         return readAnswers(dis, response, answerCount);
@@ -143,18 +140,18 @@ public final class DnsMessage {
      * @param offset The offset.
      * @param jumps  The list of jumps (by now).
      * @return The parsed domain name.
-     * @throws IllegalStateException on cycles.
+     * @throws IOException on cycles.
      */
     private static String readName(
             byte data[],
             int offset,
             HashSet<Integer> jumps
-    ) {
+    ) throws IOException{
         int c = data[offset] & 0xff;
         if ((c & 0xc0) == 0xc0) {
             c = ((c & 0x3f) << 8) + (data[offset + 1] & 0xff);
             if (jumps.contains(c)) {
-                throw new IllegalStateException("Cyclic offsets detected.");
+                throw new IOException("Cyclic offsets detected.");
             }
             jumps.add(c);
             return readName(data, c, jumps);
@@ -216,7 +213,7 @@ public final class DnsMessage {
                 break;
         }
         if (payload == null) {
-            return null;
+            throw new IOException("no record");
         }
         return new Record(payload, type, (int) ttl, System.currentTimeMillis() / 1000);
     }

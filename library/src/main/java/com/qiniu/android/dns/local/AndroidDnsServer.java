@@ -1,5 +1,9 @@
 package com.qiniu.android.dns.local;
 
+import com.qiniu.android.dns.Domain;
+import com.qiniu.android.dns.IResolver;
+import com.qiniu.android.dns.Record;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,7 +18,7 @@ import java.util.logging.Logger;
  * reference github/rtreffer/minidns.
  */
 public final class AndroidDnsServer {
-    public static InetAddress[] getByCommand() {
+    private static InetAddress[] getByCommand() {
         try {
             Process process = Runtime.getRuntime().exec("getprop");
             InputStream inputStream = process.getInputStream();
@@ -56,7 +60,7 @@ public final class AndroidDnsServer {
         return null;
     }
 
-    public static InetAddress[] getByReflection() {
+    private static InetAddress[] getByReflection() {
         try {
             Class<?> SystemProperties =
                     Class.forName("android.os.SystemProperties");
@@ -72,7 +76,6 @@ public final class AndroidDnsServer {
 
                 if (value == null) continue;
                 if (value.length() == 0) continue;
-                if (servers.contains(value)) continue;
 
                 InetAddress ip = InetAddress.getByName(value);
 
@@ -82,7 +85,7 @@ public final class AndroidDnsServer {
 
                 if (value == null) continue;
                 if (value.length() == 0) continue;
-                if (servers.contains(value)) continue;
+                if (servers.contains(ip)) continue;
 
                 servers.add(ip);
             }
@@ -97,14 +100,33 @@ public final class AndroidDnsServer {
         return null;
     }
 
-    public static Resolver defaultResolver() {
-        InetAddress[] addresses = getByReflection();
-        if (addresses == null) {
-            addresses = getByCommand();
-        }
-        if (addresses == null) {
-            return null;
-        }
-        return new Resolver(addresses[0]);
+    public static IResolver defaultResolver() {
+//        the system dns ip would change after network changed.
+        return new IResolver() {
+            @Override
+            public Record[] query(Domain domain) throws IOException {
+                InetAddress[] addresses = getByReflection();
+                if (addresses == null) {
+                    addresses = getByCommand();
+                }
+                if (addresses == null) {
+                    throw new IOException("cant get local dns server");
+                }
+                Record[] records =  new Resolver(addresses[0]).query(domain);
+                if (domain.hasCname) {
+                    boolean cname = false;
+                    for (Record r:records){
+                        if (r.isCname()){
+                            cname = true;
+                            break;
+                        }
+                    }
+                    if (!cname){
+                        throw new DnshijackingException(domain.domain, addresses[0].getHostAddress());
+                    }
+                }
+                return records;
+            }
+        };
     }
 }

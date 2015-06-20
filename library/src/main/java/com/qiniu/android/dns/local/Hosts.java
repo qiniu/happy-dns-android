@@ -12,12 +12,15 @@ import java.util.Random;
 /**
  * Created by bailong on 15/6/18.
  */
-public class Hosts implements IResolver {
+public final class Hosts implements IResolver {
+
+    private final Hashtable<String, ArrayList<Value>> hosts = new Hashtable<>();
+    private final Random random = new Random();
 
     @Override
     public Record[] query(Domain domain) throws IOException {
         ArrayList<Value> vals = hosts.get(domain.domain);
-        if(vals == null || vals.isEmpty()){
+        if (vals == null || vals.isEmpty()) {
             return null;
         }
         //todo filter the math network type
@@ -25,17 +28,32 @@ public class Hosts implements IResolver {
         return shuffle(vals);
     }
 
-    public Record[] shuffle(ArrayList<Value> vals){
+    public Record[] shuffle(ArrayList<Value> vals) {
         int size = vals.size();
-        int step = (random.nextInt()&0XFF)%size;
+        int step = (random.nextInt() & 0XFF) % size;
 
-        long timeStamp = System.currentTimeMillis()/1000;
+        long timeStamp = System.currentTimeMillis() / 1000;
         Record[] r = new Record[size];
         for (int i = 0; i < size; i++) {
-            Value v = vals.get((i+step)%size);
+            Value v = vals.get((i + step) % size);
             r[i] = new Record(v.ip, v.recordType, v.ttl, timeStamp);
         }
         return r;
+    }
+
+    public Hosts put(String domain, Value val) {
+        ArrayList<Value> vals = hosts.get(domain);
+        if (vals == null) {
+            vals = new ArrayList<>();
+        }
+        vals.add(val);
+        hosts.put(domain, vals);
+        return this;
+    }
+
+    public Hosts put(String domain, String val) {
+        put(domain, new Value(val));
+        return this;
     }
 
     public static class Value {
@@ -55,35 +73,17 @@ public class Hosts implements IResolver {
             this(ip, 60, Record.TYPE_A, 0);
         }
 
-        public boolean equals(Object o){
-            if (this == o){
+        public boolean equals(Object o) {
+            if (this == o) {
                 return true;
             }
-            if (o == null || !(o instanceof Value)){
+            if (o == null || !(o instanceof Value)) {
                 return false;
             }
-            Value another = (Value)o;
+            Value another = (Value) o;
             return this.ip.equals(another.ip)
                     && this.recordType == another.recordType
                     && this.networkType == another.networkType;
         }
     }
-
-    public Hosts put(String domain, Value val){
-        ArrayList<Value> vals = hosts.get(domain);
-        if(vals == null){
-            vals = new ArrayList<>();
-        }
-        vals.add(val);
-        hosts.put(domain, vals);
-        return this;
-    }
-
-    public Hosts put(String domain, String val){
-        put(domain, new Value(val));
-        return this;
-    }
-
-    private final Hashtable<String, ArrayList<Value>> hosts = new Hashtable<>();
-    private final Random random = new Random();
 }

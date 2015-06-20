@@ -8,4 +8,13 @@
 
     <application android:label="@string/app_name"></application>
 
+    <receiver
+        android:name="com.ray.ray.receiver.ConnectionChangeReceiver"
+        android:label="NetworkConnection" >
+        <intent-filter>
+            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            <action android:name="android.intent.action.USER_PRESENT" />
+        </intent-filter>
+    </receiver>
+
 </manifest>

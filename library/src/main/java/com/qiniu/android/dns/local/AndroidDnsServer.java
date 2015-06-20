@@ -112,16 +112,16 @@ public final class AndroidDnsServer {
                 if (addresses == null) {
                     throw new IOException("cant get local dns server");
                 }
-                Record[] records =  new Resolver(addresses[0]).query(domain);
+                Record[] records = new Resolver(addresses[0]).query(domain);
                 if (domain.hasCname) {
                     boolean cname = false;
-                    for (Record r:records){
-                        if (r.isCname()){
+                    for (Record r : records) {
+                        if (r.isCname()) {
                             cname = true;
                             break;
                         }
                     }
-                    if (!cname){
+                    if (!cname) {
                         throw new DnshijackingException(domain.domain, addresses[0].getHostAddress());
                     }
                 }

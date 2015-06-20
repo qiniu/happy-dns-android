@@ -1,12 +1,12 @@
 package com.qiniu.android.dns;
 
-import android.content.Context;
 import android.net.NetworkInfo;
+
+import com.qiniu.android.dns.util.LruCache;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.PriorityQueue;
+import java.util.Deque;
 
 
 /**
@@ -14,31 +14,32 @@ import java.util.PriorityQueue;
  */
 public final class DnsManager {
 
-    private class Container implements Comparable{
-        final IResolver resolver;
-        final int weight;
+    private int netType = 0;
+    private Deque<IResolver> resolvers;
+    private LruCache<String, Record[]> cache;
+    private volatile boolean disconnected = false;
 
-        private Container(IResolver resolver, int weight) {
-            this.resolver = resolver;
-            this.weight = weight;
-
-        }
-
-        @Override
-        public int compareTo(Object another) {
-            if (this.weight > ((Container)another).weight){
-                return 1;
-            }else if (this.weight < ((Container)another).weight){
-                return -1;
-            }
-            return 0;
+    public DnsManager(NetworkInfo info, IResolver[] resolvers) {
+        netType = info.getSubtype();
+        for (IResolver r : resolvers) {
+            this.resolvers.add(r);
         }
     }
-    private PriorityQueue<Container> resolvers;
 
-    //    增加一个 Dns 查询器实现，根据权重选择优先级顺序
-    public void addQueryer(IResolver q, int weight) {
-        resolvers.add(new Container(q, weight));
+    private static String[] records2Ip(Record[] records) {
+        if (records == null || records.length == 0) {
+            return null;
+        }
+        ArrayList<String> a = new ArrayList<>(records.length);
+        for (Record r : records) {
+            if (r != null && r.type == Record.TYPE_A) {
+                a.add(r.value);
+            }
+        }
+        if (a.size() == 0) {
+            return null;
+        }
+        return a.toArray(new String[a.size()]);
     }
 
     //    查询域名，返回IP列表
@@ -46,49 +47,52 @@ public final class DnsManager {
         return query(new Domain(domain));
     }
 
-    public String[] query(Domain domain){
-        for (Container resolver : resolvers) {
-            Record[] r = null;
-            try {
-                r = resolver.resolver.query(domain);
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-            String[] s = records2Ip(r);
-            if (s != null) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-    private static String[] records2Ip(Record[] records){
-        ArrayList<String> a = new ArrayList<>(records.length);
-        for (Record r:records){
-            if (r != null && r.type == Record.TYPE_A){
-                a.add(r.value);
-            }
-        }
-        if (a.size() == 0){
+//    todo merge requests
+    public String[] query(Domain domain) {
+        if (disconnected){
             return null;
         }
-        return a.toArray(new String[a.size()]);
-    }
-
-    public void onNetworkChange(NetworkInfo info, String deviceIp){
-        if (info.getSubtype() != netType){
-            if (deviceIp == null || (!deviceIp.equals(previousIp))){
-                clearCache();
+        Record[] records;
+        long now = System.currentTimeMillis();
+        synchronized (cache){
+            records = cache.get(domain.domain);
+            if (records != null && records.length != 0){
+                if (records[0].expired() >= now ){
+                    return records2Ip(records);
+                }
             }
         }
-        netType = info.getSubtype();
-        previousIp = deviceIp;
+
+        int len = resolvers.size();
+        records = null;
+        for (int i = 0; i < len; i++) {
+            IResolver r = resolvers.peek();
+            try {
+                records = r.query(domain);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (records == null || records.length == 0) {
+                resolvers.add(resolvers.remove());
+            }
+        }
+        synchronized (cache){
+            cache.put(domain.domain, records);
+        }
+        return records2Ip(records);
     }
 
-    private String previousIp = null;
-    private int netType = 0;
-    private void clearCache(){
+    public void onNetworkChange(NetworkInfo info, String deviceIp) {
+        clearCache();
+        if (info != null){
+            netType = info.getSubtype();
+            disconnected = false;
+        } else {
+            disconnected = true;
+        }
+    }
 
+    private void clearCache() {
+        cache.clear();
     }
 }

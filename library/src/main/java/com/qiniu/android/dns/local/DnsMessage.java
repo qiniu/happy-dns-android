@@ -77,13 +77,13 @@ public final class DnsMessage {
         DataInputStream dis = new DataInputStream(bis);
         int answerId = dis.readUnsignedShort();
         if (answerId != id) {
-            throw new DnsException(domain, "the answer id " + answerId +" is not match " + id);
+            throw new DnsException(domain, "the answer id " + answerId + " is not match " + id);
         }
         int header = dis.readUnsignedShort();
         boolean recursionDesired = ((header >> 8) & 1) == 1;
         boolean recursionAvailable = ((header >> 7) & 1) == 1;
         if (!(recursionAvailable && recursionDesired)) {
-            throw new DnsException(domain,  "the dns server cant support recursion ");
+            throw new DnsException(domain, "the dns server cant support recursion ");
 
         }
 
@@ -146,7 +146,7 @@ public final class DnsMessage {
             byte data[],
             int offset,
             HashSet<Integer> jumps
-    ) throws IOException{
+    ) throws IOException {
         int c = data[offset] & 0xff;
         if ((c & 0xc0) == 0xc0) {
             c = ((c & 0x3f) << 8) + (data[offset + 1] & 0xff);

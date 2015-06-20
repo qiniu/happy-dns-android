@@ -1,7 +1,5 @@
 package com.qiniu.android.dns;
 
-import java.util.Objects;
-
 /**
  * Created by bailong on 15/6/12.
  */
@@ -20,25 +18,29 @@ public final class Record {
         this.timeStamp = timeStamp;
     }
 
-    public boolean equals(Object o){
-        if (this == o){
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof Record)){
-            return  false;
+        if (o == null || !(o instanceof Record)) {
+            return false;
         }
-        Record another = (Record)o;
+        Record another = (Record) o;
         return this.value.equals(another.value)
                 && this.type == another.type
                 && this.ttl == another.ttl
                 && this.timeStamp == another.timeStamp;
     }
 
-    public boolean isA(){
+    public boolean isA() {
         return type == TYPE_A;
     }
 
-    public boolean isCname(){
+    public boolean isCname() {
         return type == TYPE_CNAME;
+    }
+
+    public long expired(){
+        return timeStamp + ttl;
     }
 }

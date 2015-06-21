@@ -9,7 +9,7 @@ import android.net.NetworkInfo;
 /**
  * Created by bailong on 15/6/19.
  */
-public class NetworkReceiver extends BroadcastReceiver {
+public final class NetworkReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (mdnsManager == null){
@@ -18,7 +18,7 @@ public class NetworkReceiver extends BroadcastReceiver {
         ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeInfo = manager.getActiveNetworkInfo();
         if (activeInfo != null){
-            mdnsManager.onNetworkChange(activeInfo, null);
+            mdnsManager.onNetworkChange(activeInfo);
         }
     }
 

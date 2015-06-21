@@ -1,12 +1,11 @@
 package com.qiniu.android.dns;
 
-import android.net.NetworkInfo;
-
 import com.qiniu.android.dns.util.LruCache;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedList;
 
 
 /**
@@ -20,10 +19,16 @@ public final class DnsManager {
     private volatile boolean disconnected = false;
 
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
-        netType = info.getSubtype();
+        netType = info.netType;
+        this.resolvers = new LinkedList<>();
         for (IResolver r : resolvers) {
             this.resolvers.add(r);
         }
+        cache = new LruCache<>();
+    }
+
+    public DnsManager(android.net.NetworkInfo info, IResolver[] resolvers) {
+        this(new NetworkInfo(info), resolvers);
     }
 
     private static String[] records2Ip(Record[] records) {
@@ -82,10 +87,14 @@ public final class DnsManager {
         return records2Ip(records);
     }
 
-    public void onNetworkChange(NetworkInfo info, String deviceIp) {
+    public void onNetworkChange(android.net.NetworkInfo info) {
+        onNetworkChange(new NetworkInfo(info));
+    }
+
+    public void onNetworkChange(NetworkInfo info){
         clearCache();
         if (info != null){
-            netType = info.getSubtype();
+            netType = info.netType;
             disconnected = false;
         } else {
             disconnected = true;

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 /**

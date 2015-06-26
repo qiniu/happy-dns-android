@@ -2,7 +2,6 @@ package com.qiniu.android.dns.util;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created by bailong on 15/6/18.

@@ -40,7 +40,11 @@ public final class Record {
         return type == TYPE_CNAME;
     }
 
-    public long expired(){
-        return timeStamp + ttl;
+    public boolean isExpired(){
+        return isExpired(System.currentTimeMillis()/1000);
+    }
+
+    public boolean isExpired(long time){
+        return timeStamp + ttl < time;
     }
 }

@@ -1,8 +1,5 @@
 package com.qiniu.android.dns;
 
-import android.net.ConnectivityManager;
-import android.telephony.TelephonyManager;
-
 /**
  * Created by bailong on 15/6/21.
  */

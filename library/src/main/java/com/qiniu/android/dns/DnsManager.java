@@ -100,10 +100,15 @@ public final class DnsManager {
     public void onNetworkChange(NetworkInfo info) {
         clearCache();
         this.info = info == null ? NetworkInfo.normal() : info;
+        synchronized (resolversStatus){
+            resolversStatus.clear();
+        }
     }
 
     private void clearCache() {
-        cache.clear();
+        synchronized (cache){
+            cache.clear();
+        }
     }
 
     private LinkedList<IResolver> view() {

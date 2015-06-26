@@ -11,7 +11,7 @@ import junit.framework.Assert;
  */
 public class LruCacheTest extends AndroidTestCase {
 
-    public void testPut(){
+    public void testPut() {
         LruCache<String, String> x = new LruCache<>(2);
         x.put("1", "1");
         x.put("2", "2");
@@ -25,7 +25,7 @@ public class LruCacheTest extends AndroidTestCase {
         Assert.assertNull(x.get("2"));
     }
 
-    public void testOut(){
+    public void testOut() {
         LruCache<String, String> x = new LruCache<>(2);
         x.put("1", "1");
         x.put("2", "2");
@@ -40,7 +40,7 @@ public class LruCacheTest extends AndroidTestCase {
         Assert.assertNull(x.get("2"));
     }
 
-    public void testClear(){
+    public void testClear() {
         LruCache<String, String> x = new LruCache<>(2);
         x.put("1", "1");
         x.put("2", "2");

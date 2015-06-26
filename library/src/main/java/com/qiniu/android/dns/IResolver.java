@@ -8,5 +8,5 @@ import java.io.IOException;
 
 // 同步的域名查询接口，没有独立线程, 可以有local dns, httpdns 等实现
 public interface IResolver {
-    Record[] query(Domain domain) throws IOException;
+    Record[] query(Domain domain, NetworkInfo info) throws IOException;
 }

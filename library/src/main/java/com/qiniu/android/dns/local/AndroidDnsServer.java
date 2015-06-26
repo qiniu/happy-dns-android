@@ -2,6 +2,7 @@ package com.qiniu.android.dns.local;
 
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
+import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
@@ -104,7 +105,7 @@ public final class AndroidDnsServer {
 //        the system dns ip would change after network changed.
         return new IResolver() {
             @Override
-            public Record[] query(Domain domain) throws IOException {
+            public Record[] query(Domain domain, NetworkInfo info) throws IOException {
                 InetAddress[] addresses = getByReflection();
                 if (addresses == null) {
                     addresses = getByCommand();
@@ -112,7 +113,7 @@ public final class AndroidDnsServer {
                 if (addresses == null) {
                     throw new IOException("cant get local dns server");
                 }
-                Record[] records = new Resolver(addresses[0]).query(domain);
+                Record[] records = new Resolver(addresses[0]).query(domain, info);
                 if (domain.hasCname) {
                     boolean cname = false;
                     for (Record r : records) {

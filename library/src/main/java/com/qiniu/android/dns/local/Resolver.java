@@ -3,6 +3,7 @@ package com.qiniu.android.dns.local;
 import com.qiniu.android.dns.DnsException;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
+import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public final class Resolver implements IResolver {
     }
 
     @Override
-    public Record[] query(Domain domain) throws IOException {
+    public Record[] query(Domain domain, NetworkInfo info) throws IOException {
         int id;
         synchronized (random) {
             id = random.nextInt() & 0XFF;

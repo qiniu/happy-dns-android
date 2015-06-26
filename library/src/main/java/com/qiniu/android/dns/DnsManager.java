@@ -13,22 +13,17 @@ import java.util.LinkedList;
  */
 public final class DnsManager {
 
-    private int netType = 0;
+    private NetworkInfo info = null;
     private Deque<IResolver> resolvers;
     private LruCache<String, Record[]> cache;
-    private volatile boolean disconnected = false;
 
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
-        netType = info.netType;
+        this.info = info == null? NetworkInfo.normal():info;
         this.resolvers = new LinkedList<>();
         for (IResolver r : resolvers) {
             this.resolvers.add(r);
         }
         cache = new LruCache<>();
-    }
-
-    public DnsManager(android.net.NetworkInfo info, IResolver[] resolvers) {
-        this(new NetworkInfo(info), resolvers);
     }
 
     private static String[] records2Ip(Record[] records) {
@@ -54,9 +49,9 @@ public final class DnsManager {
 
 //    todo merge requests
     public String[] query(Domain domain) {
-        if (disconnected){
-            return null;
-        }
+//        if (info.netStatus == NetworkInfo.NO_NETWORK){
+//            return null;
+//        }
         Record[] records;
         long now = System.currentTimeMillis();
         synchronized (cache){
@@ -73,7 +68,7 @@ public final class DnsManager {
         for (int i = 0; i < len; i++) {
             IResolver r = resolvers.peek();
             try {
-                records = r.query(domain);
+                records = r.query(domain, info);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -87,18 +82,9 @@ public final class DnsManager {
         return records2Ip(records);
     }
 
-    public void onNetworkChange(android.net.NetworkInfo info) {
-        onNetworkChange(new NetworkInfo(info));
-    }
-
     public void onNetworkChange(NetworkInfo info){
         clearCache();
-        if (info != null){
-            netType = info.netType;
-            disconnected = false;
-        } else {
-            disconnected = true;
-        }
+        this.info = info == null? NetworkInfo.normal():info;
     }
 
     private void clearCache() {

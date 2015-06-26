@@ -15,9 +15,9 @@ public class DnspodFreeTest extends AndroidTestCase {
     public void testFound() throws IOException {
         DnspodFree resolver = new DnspodFree();
         try {
-            Record[] records = resolver.query(new Domain("baidu.com"));
+            Record[] records = resolver.query(new Domain("baidu.com"), null);
             Assert.assertNotNull(records);
-            Assert.assertTrue(records.length>0);
+            Assert.assertTrue(records.length > 0);
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
@@ -26,7 +26,7 @@ public class DnspodFreeTest extends AndroidTestCase {
     public void testNotFound() throws IOException {
         DnspodFree resolver = new DnspodFree();
         try {
-            Record[] records = resolver.query(new Domain("7777777.qiniu.com"));
+            Record[] records = resolver.query(new Domain("7777777.qiniu.com"), null);
             Assert.assertNull(records);
         } catch (IOException e) {
             Assert.fail(e.getMessage());

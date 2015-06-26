@@ -1,13 +1,6 @@
 package com.qiniu.android.dns;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
-
-import com.qiniu.android.dns.local.AndroidDnsServer;
-
-import junit.framework.Assert;
-
-import java.net.InetAddress;
 
 /**
  * Created by bailong on 15/6/16.

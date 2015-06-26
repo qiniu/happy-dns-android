@@ -2,6 +2,7 @@ package com.qiniu.android.dns.http;
 
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
+import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.net.URL;
  */
 public final class DnspodFree implements IResolver {
     @Override
-    public Record[] query(Domain domain) throws IOException {
+    public Record[] query(Domain domain, NetworkInfo info) throws IOException {
         URL url = new URL("http://119.29.29.29/d?ttl=1&dn=" + domain.domain);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         int responseCode = httpConn.getResponseCode();

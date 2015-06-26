@@ -2,6 +2,7 @@ package com.qiniu.android.dns.local;
 
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
+import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
@@ -18,14 +19,31 @@ public final class Hosts implements IResolver {
     private final Random random = new Random();
 
     @Override
-    public Record[] query(Domain domain) throws IOException {
+    public Record[] query(Domain domain, NetworkInfo info) throws IOException {
         ArrayList<Value> vals = hosts.get(domain.domain);
         if (vals == null || vals.isEmpty()) {
             return null;
         }
-        //todo filter the math network type
-
+        vals = filte(vals, info);
         return shuffle(vals);
+    }
+
+    public ArrayList<Value> filte(ArrayList<Value> origin, NetworkInfo info){
+        ArrayList<Value> normal = new ArrayList<>();
+        ArrayList<Value> specical = new ArrayList<>();
+        for (Value v: origin) {
+            if (v.provider == NetworkInfo.ISP_GENERAL){
+                normal.add(v);
+            }
+            if (info.provider!= NetworkInfo.ISP_GENERAL
+                    && v.provider == info.provider){
+                specical.add(v);
+            }
+        }
+        if (specical.size() != 0){
+            return specical;
+        }
+        return normal;
     }
 
     public Record[] shuffle(ArrayList<Value> vals) {
@@ -59,18 +77,18 @@ public final class Hosts implements IResolver {
     public static class Value {
         public final String ip;
         public final int recordType;
-        public final int networkType;
+        public final int provider;
         public final int ttl;
 
-        public Value(String ip, int ttl, int recordType, int networkType) {
+        public Value(String ip, int ttl, int recordType, int provider) {
             this.ip = ip;
             this.recordType = recordType;
-            this.networkType = networkType;
+            this.provider = provider;
             this.ttl = ttl;
         }
 
         public Value(String ip) {
-            this(ip, 60, Record.TYPE_A, 0);
+            this(ip, 60, Record.TYPE_A, NetworkInfo.ISP_GENERAL);
         }
 
         public boolean equals(Object o) {
@@ -83,7 +101,7 @@ public final class Hosts implements IResolver {
             Value another = (Value) o;
             return this.ip.equals(another.ip)
                     && this.recordType == another.recordType
-                    && this.networkType == another.networkType;
+                    && this.provider == another.provider;
         }
     }
 }

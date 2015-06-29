@@ -39,9 +39,9 @@ public class LocalResolverTest extends AndroidTestCase {
     }
 
     //    http://www.alidns.com/
-    public void testAli() throws UnknownHostException {
-        template("223.5.5.5");
-    }
+//    public void testAli() throws UnknownHostException {
+//        template("223.5.5.5");
+//    }
 
     //    https://www.114dns.com/
     public void test114() throws UnknownHostException {
@@ -49,9 +49,9 @@ public class LocalResolverTest extends AndroidTestCase {
     }
 
     //    http://dudns.baidu.com/
-    public void testBaidu() throws UnknownHostException {
-        template("180.76.76.76");
-    }
+//    public void testBaidu() throws UnknownHostException {
+//        template("180.76.76.76");
+//    }
 
     //    http://www.sdns.cn/
 //    public void testCnnic() throws UnknownHostException {
@@ -63,7 +63,7 @@ public class LocalResolverTest extends AndroidTestCase {
     }
 
     //    http://www.dnspai.com/
-    public void testDnspai() throws UnknownHostException {
-        template("101.226.4.6");
-    }
+//    public void testDnspai() throws UnknownHostException {
+//        template("101.226.4.6");
+//    }
 }

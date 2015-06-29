@@ -7,8 +7,22 @@ import java.util.LinkedList;
  * Created by bailong on 15/6/18.
  */
 public final class LruCache<K, V> {
+    private LinkedList<K> list;
+    private HashMap<K, V> map;
+    private int size;
+
+    public LruCache() {
+        this(256);
+    }
+
+    public LruCache(int size) {
+        list = new LinkedList<>();
+        map = new HashMap<>();
+        this.size = size;
+    }
+
     public LruCache put(K k, V v) {
-        if (list.size() == size){
+        if (list.size() == size) {
             K old = list.pollLast();
             map.remove(old);
         }
@@ -33,18 +47,5 @@ public final class LruCache<K, V> {
     public void clear() {
         list.clear();
         map.clear();
-    }
-
-    private LinkedList<K> list;
-    private HashMap<K, V> map;
-    private int size;
-    public LruCache(){
-        this(256);
-    }
-
-    public LruCache(int size){
-        list = new LinkedList<>();
-        map = new HashMap<>();
-        this.size = size;
     }
 }

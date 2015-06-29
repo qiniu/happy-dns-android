@@ -36,36 +36,32 @@ public final class NetworkInfo {
      * 其他运营商
      */
     public static final int ISP_OTHER = 999;
-
-    /**
-     * 网络状态，没有网络，wifi，或者2G/3G/4G网络
-     */
-    public enum NetSatus{
-        NO_NETWORK,WIFI,MOBILE;
-    }
-
-
     /**
      * 运营商
      */
     public final int provider;
-
     /**
      * 网络状态
      */
     public final NetSatus netStatus;
 
-
-    public NetworkInfo(NetSatus status, int provider){
+    public NetworkInfo(NetSatus status, int provider) {
         this.netStatus = status;
         this.provider = provider;
     }
 
-    public static NetworkInfo noNetwork(){
+    public static NetworkInfo noNetwork() {
         return new NetworkInfo(NetSatus.NO_NETWORK, ISP_GENERAL);
     }
 
-    public static NetworkInfo normal(){
+    public static NetworkInfo normal() {
         return new NetworkInfo(NetSatus.WIFI, ISP_GENERAL);
+    }
+
+    /**
+     * 网络状态，没有网络，wifi，或者2G/3G/4G网络
+     */
+    public enum NetSatus {
+        NO_NETWORK, WIFI, MOBILE;
     }
 }

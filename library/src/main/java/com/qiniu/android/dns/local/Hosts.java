@@ -1,11 +1,8 @@
 package com.qiniu.android.dns.local;
 
 import com.qiniu.android.dns.Domain;
-import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
-import com.qiniu.android.dns.Record;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
@@ -27,19 +24,19 @@ public final class Hosts {
         return shuffle(vals);
     }
 
-    private ArrayList<Value> filte(ArrayList<Value> origin, NetworkInfo info){
+    private ArrayList<Value> filte(ArrayList<Value> origin, NetworkInfo info) {
         ArrayList<Value> normal = new ArrayList<>();
         ArrayList<Value> specical = new ArrayList<>();
-        for (Value v: origin) {
-            if (v.provider == NetworkInfo.ISP_GENERAL){
+        for (Value v : origin) {
+            if (v.provider == NetworkInfo.ISP_GENERAL) {
                 normal.add(v);
             }
-            if (info.provider!= NetworkInfo.ISP_GENERAL
-                    && v.provider == info.provider){
+            if (info.provider != NetworkInfo.ISP_GENERAL
+                    && v.provider == info.provider) {
                 specical.add(v);
             }
         }
-        if (specical.size() != 0){
+        if (specical.size() != 0) {
             return specical;
         }
         return normal;

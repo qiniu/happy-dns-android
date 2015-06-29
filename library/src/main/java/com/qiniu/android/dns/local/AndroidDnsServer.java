@@ -123,7 +123,18 @@ public final class AndroidDnsServer {
                         }
                     }
                     if (!cname) {
-                        throw new DnshijackingException(domain.domain, addresses[0].getHostAddress());
+                        throw new DnshijackingException(domain.domain,
+                                addresses[0].getHostAddress());
+                    }
+                }
+                if (domain.maxTtl != 0) {
+                    for (Record r : records) {
+                        if (!r.isCname()) {
+                            if (r.ttl > domain.maxTtl) {
+                                throw new DnshijackingException(domain.domain,
+                                        addresses[0].getHostAddress(), r.ttl);
+                            }
+                        }
                     }
                 }
                 return records;

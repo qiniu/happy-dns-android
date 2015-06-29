@@ -13,15 +13,14 @@ import java.util.ArrayList;
  */
 public final class DnsManager {
 
-    private volatile NetworkInfo info = null;
     private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
     private final BitSet resolversStatus = new BitSet();
     private final Hosts hosts = new Hosts();
+    private volatile NetworkInfo info = null;
 
     /**
-     *
-     * @param info 当前的网络信息，从Android context中获取
+     * @param info      当前的网络信息，从Android context中获取
      * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
      */
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
@@ -56,6 +55,7 @@ public final class DnsManager {
 
     /**
      * 查询域名
+     *
      * @param domain 域名
      * @return ip 列表
      */
@@ -65,6 +65,7 @@ public final class DnsManager {
 
     /**
      * 查询域名
+     *
      * @param domain 域名参数
      * @return ip 列表
      */
@@ -74,9 +75,9 @@ public final class DnsManager {
 //            return null;
 //        }
         Record[] records;
-        if (domain.hostsFirst){
+        if (domain.hostsFirst) {
             String[] ret = hosts.query(domain, info);
-            if (ret != null && ret.length != 0){
+            if (ret != null && ret.length != 0) {
                 return ret;
             }
         }
@@ -113,7 +114,7 @@ public final class DnsManager {
         }
 
         if (records == null || records.length == 0) {
-            if (!domain.hostsFirst){
+            if (!domain.hostsFirst) {
                 return hosts.query(domain, info);
             }
             return null;
@@ -127,6 +128,7 @@ public final class DnsManager {
 
     /**
      * 当网络发生变化时，通知当前的网络信息
+     *
      * @param info 网络信息
      */
     public void onNetworkChange(NetworkInfo info) {
@@ -145,8 +147,9 @@ public final class DnsManager {
 
     /**
      * 插入指定运营商的hosts配置
-     * @param domain 域名
-     * @param ip ip
+     *
+     * @param domain   域名
+     * @param ip       ip
      * @param provider 运营商，见 NetworkInfo
      * @return 当前的Dnsmanager，便于链式调用
      */
@@ -157,8 +160,9 @@ public final class DnsManager {
 
     /**
      * 插入指定运营商的hosts配置
+     *
      * @param domain 域名
-     * @param ip ip
+     * @param ip     ip
      * @return 当前的Dnsmanager，便于链式调用
      */
     public DnsManager putHosts(String domain, String ip) {

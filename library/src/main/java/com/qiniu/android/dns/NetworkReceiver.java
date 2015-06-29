@@ -12,18 +12,8 @@ import android.text.TextUtils;
  * Created by bailong on 15/6/19.
  */
 public final class NetworkReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (mdnsManager == null) {
-            return;
-        }
-        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        android.net.NetworkInfo activeInfo = manager.getActiveNetworkInfo();
-
-        NetworkInfo info = createNetInfo(activeInfo, context);
-        mdnsManager.onNetworkChange(info);
-    }
-
+    private static final Uri PREFERRED_APN_URI = Uri
+            .parse("content://telephony/carriers/preferapn");
     private static DnsManager mdnsManager;
 
     public static NetworkInfo createNetInfo(android.net.NetworkInfo info, Context context) {
@@ -56,7 +46,7 @@ public final class NetworkReceiver extends BroadcastReceiver {
                 }
             }
             c.close();
-            if (provider != NetworkInfo.ISP_CTC){
+            if (provider != NetworkInfo.ISP_CTC) {
 // 判断是移动联通wap:
                 String netMode = info.getExtraInfo();
                 if (netMode != null) {
@@ -82,6 +72,15 @@ public final class NetworkReceiver extends BroadcastReceiver {
         mdnsManager = dnsManager;
     }
 
-    private static final Uri PREFERRED_APN_URI = Uri
-            .parse("content://telephony/carriers/preferapn");
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (mdnsManager == null) {
+            return;
+        }
+        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo activeInfo = manager.getActiveNetworkInfo();
+
+        NetworkInfo info = createNetInfo(activeInfo, context);
+        mdnsManager.onNetworkChange(info);
+    }
 }

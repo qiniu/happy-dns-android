@@ -20,19 +20,18 @@ String version = versionName()
 int code = versionNameToCode(version)
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
     defaultConfig {
         //applicationId "com.qiniu.android"
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode code
         versionName version
     }
 }
 
 dependencies {
-    compile 'com.loopj.android:android-async-http:1.4.6'
 //    compile 'com.android.support:appcompat-v7:21.0.3'
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
@@ -41,7 +40,7 @@ task releaseJar(type: Copy, dependsOn: 'build') {
     from('build/intermediates/bundles/release')
     into('../releases')
     include('classes.jar')
-    rename('classes.jar', 'qiniu-happy-dns-' + version + '.jar')
+    rename('classes.jar', 'happy-dns-' + version + '.jar')
 }
 
 android.libraryVariants.all { variant ->

@@ -8,6 +8,8 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import java.util.Locale;
+
 /**
  * Created by bailong on 15/6/19.
  */
@@ -51,7 +53,7 @@ public final class NetworkReceiver extends BroadcastReceiver {
                 String netMode = info.getExtraInfo();
                 if (netMode != null) {
                     // 通过apn名称判断是否是联通和移动wap
-                    netMode = netMode.toLowerCase();
+                    netMode = netMode.toLowerCase(Locale.getDefault());
 
                     if (netMode.equals("cmwap") || netMode.equals("cmnet")) {
                         provider = NetworkInfo.ISP_CMCC;

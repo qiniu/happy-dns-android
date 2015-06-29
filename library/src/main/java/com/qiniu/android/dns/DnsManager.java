@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 
 /**
- * Created by bailong on 15/6/12.
+ * DNS解析管理类，可以重复使用
  */
 public final class DnsManager {
 
@@ -19,6 +19,11 @@ public final class DnsManager {
     private final BitSet resolversStatus = new BitSet();
     private final Hosts hosts = new Hosts();
 
+    /**
+     *
+     * @param info 当前的网络信息，从Android context中获取
+     * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
+     */
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
         this.info = info == null ? NetworkInfo.normal() : info;
         this.resolvers = resolvers.clone();
@@ -49,12 +54,20 @@ public final class DnsManager {
         return a.toArray(new String[a.size()]);
     }
 
-    //    查询域名，返回IP列表
+    /**
+     * 查询域名
+     * @param domain 域名
+     * @return ip 列表
+     */
     public String[] query(String domain) {
         return query(new Domain(domain));
     }
 
-    //    todo merge requests
+    /**
+     * 查询域名
+     * @param domain 域名参数
+     * @return ip 列表
+     */
     public String[] query(Domain domain) {
 //        有些手机网络状态可能不对
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){
@@ -112,6 +125,10 @@ public final class DnsManager {
         return records2Ip(records);
     }
 
+    /**
+     * 当网络发生变化时，通知当前的网络信息
+     * @param info 网络信息
+     */
     public void onNetworkChange(NetworkInfo info) {
         clearCache();
         this.info = info == null ? NetworkInfo.normal() : info;
@@ -126,11 +143,24 @@ public final class DnsManager {
         }
     }
 
+    /**
+     * 插入指定运营商的hosts配置
+     * @param domain 域名
+     * @param ip ip
+     * @param provider 运营商，见 NetworkInfo
+     * @return 当前的Dnsmanager，便于链式调用
+     */
     public DnsManager putHosts(String domain, String ip, int provider) {
         hosts.put(domain, new Hosts.Value(ip, provider));
         return this;
     }
 
+    /**
+     * 插入指定运营商的hosts配置
+     * @param domain 域名
+     * @param ip ip
+     * @return 当前的Dnsmanager，便于链式调用
+     */
     public DnsManager putHosts(String domain, String ip) {
         hosts.put(domain, ip);
         return this;

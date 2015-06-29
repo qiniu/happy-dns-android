@@ -4,11 +4,34 @@ package com.qiniu.android.dns;
  * Created by bailong on 15/6/12.
  */
 public final class Record {
+    /**
+     * A 记录 类型
+     */
     public static final int TYPE_A = 1;
+
+    /**
+     * CName 类型
+     */
     public static final int TYPE_CNAME = 5;
+
+    /**
+     * 具体的值，A 记录时为IP，Cname时为指向的域名
+     */
     public final String value;
+
+    /**
+     * 记录类型，A或者CName
+     */
     public final int type;
+
+    /**
+     * TTL dns结果缓存时间
+     */
     public final int ttl;
+
+    /**
+     * 时间戳，用来判断超时
+     */
     public final long timeStamp;
 
     public Record(String value, int type, int ttl, long timeStamp) {

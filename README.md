@@ -14,9 +14,12 @@
 ### 通过maven
 
 ## 使用方法
-UploadManager 可以创建一次，一直使用。
+DnsManager 可以创建一次，一直使用。
 ```java
-
+    IResolver[] resolvers = new IResolver[2];
+    resolvers[0] = AndroidDnsServer.defaultResolver();
+    resolvers[1] = new Resolver(InetAddress.getByName("114.114.115.115"));
+    DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
 ```
 
 ## 测试
@@ -41,7 +44,6 @@ Android 最低要求 2.3
 
 - 如果需要帮助，请提交工单（在portal右侧点击咨询和建议提交工单，或者直接向 support@qiniu.com 发送邮件）
 - 如果有什么问题，可以到问答社区提问，[问答社区](http://qiniu.segmentfault.com/)
-- 更详细的文档，见[官方文档站](http://developer.qiniu.com/)
 - 如果发现了bug， 欢迎提交 [issue](https://github.com/qiniu/happy-dns-android/issues)
 - 如果有功能需求，欢迎提交 [issue](https://github.com/qiniu/happy-dns-android/issues)
 - 如果要提交代码，欢迎提交 pull request

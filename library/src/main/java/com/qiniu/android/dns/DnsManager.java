@@ -1,12 +1,11 @@
 package com.qiniu.android.dns;
 
+import com.qiniu.android.dns.local.Hosts;
 import com.qiniu.android.dns.util.BitSet;
 import com.qiniu.android.dns.util.LruCache;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 
 
 /**
@@ -14,18 +13,19 @@ import java.util.LinkedList;
  */
 public final class DnsManager {
 
-    private NetworkInfo info = null;
-    private final ArrayList<IResolver> resolvers = new ArrayList<>();
+    private volatile NetworkInfo info = null;
+    private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
     private final BitSet resolversStatus = new BitSet();
+    private final Hosts hosts = new Hosts();
 
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
         this.info = info == null ? NetworkInfo.normal() : info;
-        Collections.addAll(this.resolvers, resolvers);
+        this.resolvers = resolvers.clone();
         cache = new LruCache<>();
     }
 
-    private static Record[] trimCname(Record[] records){
+    private static Record[] trimCname(Record[] records) {
         ArrayList<Record> a = new ArrayList<>(records.length);
         for (Record r : records) {
             if (r != null && r.type == Record.TYPE_A) {
@@ -61,6 +61,12 @@ public final class DnsManager {
 //            return null;
 //        }
         Record[] records;
+        if (domain.hostsFirst){
+            String[] ret = hosts.query(domain, info);
+            if (ret != null && ret.length != 0){
+                return ret;
+            }
+        }
         long now = System.currentTimeMillis();
         synchronized (cache) {
             records = cache.get(domain.domain);
@@ -71,23 +77,32 @@ public final class DnsManager {
             }
         }
 
-        int len = resolvers.size();
-        records = null;
-        LinkedList<IResolver> l = view();
-        for (int i = 0; i < len; i++) {
-            IResolver r = l.get(i);
+        int firstOk;
+        synchronized (resolversStatus) {
+            firstOk = 32 - resolversStatus.leadingZeros();
+        }
+
+        for (int i = 0; i < resolvers.length; i++) {
+            int pos = (firstOk + i) % resolvers.length;
+            NetworkInfo before = info;
             try {
-                records = r.query(domain, info);
+                records = resolvers[pos].query(domain, info);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (records == null || records.length == 0) {
+            if (info == before && (records == null || records.length == 0)) {
                 synchronized (resolversStatus) {
-                    resolversStatus.set(i);
+                    resolversStatus.set(pos);
                 }
+            } else {
+                break;
             }
         }
-        if (records == null){
+
+        if (records == null || records.length == 0) {
+            if (!domain.hostsFirst){
+                return hosts.query(domain, info);
+            }
             return null;
         }
         records = trimCname(records);
@@ -100,28 +115,24 @@ public final class DnsManager {
     public void onNetworkChange(NetworkInfo info) {
         clearCache();
         this.info = info == null ? NetworkInfo.normal() : info;
-        synchronized (resolversStatus){
+        synchronized (resolversStatus) {
             resolversStatus.clear();
         }
     }
 
     private void clearCache() {
-        synchronized (cache){
+        synchronized (cache) {
             cache.clear();
         }
     }
 
-    private LinkedList<IResolver> view() {
-        LinkedList<IResolver> v = new LinkedList<>();
-        synchronized (resolversStatus) {
-            for (int i = 0; i < resolvers.size(); i++) {
-                if (resolversStatus.isSet(i)) {
-                    v.addLast(resolvers.get(i));
-                } else {
-                    v.addFirst(resolvers.get(i));
-                }
-            }
-        }
-        return v;
+    public DnsManager putHosts(String domain, String ip, int provider) {
+        hosts.put(domain, new Hosts.Value(ip, provider));
+        return this;
+    }
+
+    public DnsManager putHosts(String domain, String ip) {
+        hosts.put(domain, ip);
+        return this;
     }
 }

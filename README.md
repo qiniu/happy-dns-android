@@ -3,7 +3,7 @@
 [![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/qiniu/happy-dns-android.svg?branch=master)](https://travis-ci.org/qiniu/happy-dns-android)
-[![Latest Stable Version](http://img.shields.io/maven-central/v/com.qiniu/happy-dns-android.svg)](https://github.com/qiniu/happy-dns-android/releases)
+[![Latest Stable Version](http://img.shields.io/maven-central/v/com.qiniu/happy-dns.svg)](https://github.com/qiniu/happy-dns-android/releases)
 
 
 ## 安装

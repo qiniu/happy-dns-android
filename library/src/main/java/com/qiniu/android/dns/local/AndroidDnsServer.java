@@ -10,7 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.lang.reflect.Method;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +22,8 @@ import java.util.logging.Logger;
  * reference github/rtreffer/minidns.
  */
 public final class AndroidDnsServer {
-    private static InetAddress[] getByCommand() {
+//    15ms
+    public static InetAddress[] getByCommand() {
         try {
             Process process = Runtime.getRuntime().exec("getprop");
             InputStream inputStream = process.getInputStream();
@@ -60,8 +64,8 @@ public final class AndroidDnsServer {
         }
         return null;
     }
-
-    private static InetAddress[] getByReflection() {
+// 1ms
+    public static InetAddress[] getByReflection() {
         try {
             Class<?> SystemProperties =
                     Class.forName("android.os.SystemProperties");

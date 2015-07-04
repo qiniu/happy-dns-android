@@ -20,7 +20,7 @@ public final class NetworkReceiver extends BroadcastReceiver {
 
     public static NetworkInfo createNetInfo(android.net.NetworkInfo info, Context context) {
         if (info == null) {
-            return NetworkInfo.noNetwork();
+            return NetworkInfo.noNetwork;
         }
 
         NetworkInfo.NetSatus net;

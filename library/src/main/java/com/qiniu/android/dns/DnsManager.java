@@ -24,7 +24,7 @@ public final class DnsManager {
      * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
      */
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
-        this.info = info == null ? NetworkInfo.normal() : info;
+        this.info = info == null ? NetworkInfo.normal : info;
         this.resolvers = resolvers.clone();
         cache = new LruCache<>();
     }
@@ -74,7 +74,7 @@ public final class DnsManager {
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){
 //            return null;
 //        }
-        Record[] records;
+        Record[] records = null;
         if (domain.hostsFirst) {
             String[] ret = hosts.query(domain, info);
             if (ret != null && ret.length != 0) {
@@ -83,10 +83,17 @@ public final class DnsManager {
         }
         long now = System.currentTimeMillis();
         synchronized (cache) {
-            records = cache.get(domain.domain);
-            if (records != null && records.length != 0) {
-                if (records[0].isExpired(now)) {
-                    return records2Ip(records);
+            if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()){
+                cache.clear();
+                synchronized (resolversStatus) {
+                    resolversStatus.clear();
+                }
+            }else {
+                records = cache.get(domain.domain);
+                if (records != null && records.length != 0) {
+                    if (records[0].isExpired(now)) {
+                        return records2Ip(records);
+                    }
                 }
             }
         }
@@ -99,12 +106,14 @@ public final class DnsManager {
         for (int i = 0; i < resolvers.length; i++) {
             int pos = (firstOk + i) % resolvers.length;
             NetworkInfo before = info;
+            String ip = Network.getIp();
             try {
                 records = resolvers[pos].query(domain, info);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (info == before && (records == null || records.length == 0)) {
+            String ip2 = Network.getIp();
+            if (info == before && (records == null || records.length == 0)&& ip.equals(ip2)) {
                 synchronized (resolversStatus) {
                     resolversStatus.set(pos);
                 }
@@ -133,7 +142,7 @@ public final class DnsManager {
      */
     public void onNetworkChange(NetworkInfo info) {
         clearCache();
-        this.info = info == null ? NetworkInfo.normal() : info;
+        this.info = info == null ? NetworkInfo.normal : info;
         synchronized (resolversStatus) {
             resolversStatus.clear();
         }

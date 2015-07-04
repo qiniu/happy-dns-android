@@ -19,7 +19,7 @@ public class DnsTest extends AndroidTestCase {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver();
         resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
-        DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
+        DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
         String[] ips = dns.query("www.qiniu.com");
         assertNotNull(ips);
         assertTrue(ips.length > 0);

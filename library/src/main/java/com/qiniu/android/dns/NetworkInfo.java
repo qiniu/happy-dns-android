@@ -50,13 +50,12 @@ public final class NetworkInfo {
         this.provider = provider;
     }
 
-    public static NetworkInfo noNetwork() {
-        return new NetworkInfo(NetSatus.NO_NETWORK, ISP_GENERAL);
-    }
+    public static final NetworkInfo noNetwork =
+            new NetworkInfo(NetSatus.NO_NETWORK, ISP_GENERAL);
 
-    public static NetworkInfo normal() {
-        return new NetworkInfo(NetSatus.WIFI, ISP_GENERAL);
-    }
+    public static final NetworkInfo normal =
+        new NetworkInfo(NetSatus.WIFI, ISP_GENERAL);
+
 
     /**
      * 网络状态，没有网络，wifi，或者2G/3G/4G网络

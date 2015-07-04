@@ -28,7 +28,7 @@ public class LocalResolverTest extends AndroidTestCase {
             Assert.assertTrue(records.length > 0);
             records = resolver.query(new Domain("www.qiniu.com"), null);
             Assert.assertNotNull(records);
-            Assert.assertTrue(records.length > 3);
+            Assert.assertTrue(records.length >= 3);
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }

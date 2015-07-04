@@ -36,6 +36,10 @@ public final class NetworkInfo {
      * 其他运营商
      */
     public static final int ISP_OTHER = 999;
+    public static final NetworkInfo noNetwork =
+            new NetworkInfo(NetSatus.NO_NETWORK, ISP_GENERAL);
+    public static final NetworkInfo normal =
+            new NetworkInfo(NetSatus.WIFI, ISP_GENERAL);
     /**
      * 运营商
      */
@@ -49,12 +53,6 @@ public final class NetworkInfo {
         this.netStatus = status;
         this.provider = provider;
     }
-
-    public static final NetworkInfo noNetwork =
-            new NetworkInfo(NetSatus.NO_NETWORK, ISP_GENERAL);
-
-    public static final NetworkInfo normal =
-        new NetworkInfo(NetSatus.WIFI, ISP_GENERAL);
 
 
     /**

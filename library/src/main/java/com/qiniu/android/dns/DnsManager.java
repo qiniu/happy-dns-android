@@ -83,12 +83,12 @@ public final class DnsManager {
         }
         long now = System.currentTimeMillis();
         synchronized (cache) {
-            if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()){
+            if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()) {
                 cache.clear();
                 synchronized (resolversStatus) {
                     resolversStatus.clear();
                 }
-            }else {
+            } else {
                 records = cache.get(domain.domain);
                 if (records != null && records.length != 0) {
                     if (records[0].isExpired(now)) {
@@ -113,7 +113,7 @@ public final class DnsManager {
                 e.printStackTrace();
             }
             String ip2 = Network.getIp();
-            if (info == before && (records == null || records.length == 0)&& ip.equals(ip2)) {
+            if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {
                 synchronized (resolversStatus) {
                     resolversStatus.set(pos);
                 }

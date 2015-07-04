@@ -13,7 +13,7 @@ import java.net.InetAddress;
  * Created by bailong on 15/6/16.
  */
 public class LocalServerTest extends AndroidTestCase {
-    public void testCmd(){
+    public void testCmd() {
         long t1 = System.currentTimeMillis();
         InetAddress[] servers = AndroidDnsServer.getByCommand();
         long t2 = System.currentTimeMillis();
@@ -23,13 +23,13 @@ public class LocalServerTest extends AndroidTestCase {
         Log.v("localtest", servers[0].getHostAddress());
     }
 
-    public void testReflection(){
+    public void testReflection() {
         long t1 = System.currentTimeMillis();
         InetAddress[] servers = AndroidDnsServer.getByReflection();
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
         Assert.assertNotNull(servers);
-        Assert.assertTrue(servers.length>0);
+        Assert.assertTrue(servers.length > 0);
         Log.v("localtest", servers[0].getHostAddress());
     }
 }

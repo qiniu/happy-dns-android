@@ -27,9 +27,9 @@ public final class Network {
     }
 
 
-    public static synchronized boolean isNetworkChanged(){
-        String nowIp  = getIp();
-        if (nowIp.equals(previousIp)){
+    public static synchronized boolean isNetworkChanged() {
+        String nowIp = getIp();
+        if (nowIp.equals(previousIp)) {
             return false;
         }
         previousIp = nowIp;

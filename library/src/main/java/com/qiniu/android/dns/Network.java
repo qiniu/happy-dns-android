@@ -23,6 +23,7 @@ public final class Network {
         }
 
         InetAddress local = socket.getLocalAddress();
+        socket.close();
         return local.getHostAddress();
     }
 

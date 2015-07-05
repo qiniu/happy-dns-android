@@ -181,7 +181,7 @@ public final class DnsManager {
         return this;
     }
 
-    private String[] systemResolv(String domain){
+    private String[] systemResolv(String domain) {
         try {
             InetAddress[] addresses = InetAddress.getAllByName(domain);
             String[] x = new String[addresses.length];

@@ -35,7 +35,7 @@ public final class Resolver implements IResolver {
         if (answer == null) {
             throw new DnsException(domain.domain, "cant get answer");
         }
-        Record[] records= DnsMessage.parseResponse(answer, id, domain.domain);
+        Record[] records = DnsMessage.parseResponse(answer, id, domain.domain);
         if (domain.hasCname) {
             boolean cname = false;
             for (Record r : records) {

@@ -53,10 +53,15 @@ public class DnsTest extends AndroidTestCase {
         dns.putHosts("qiniu.com", "3.3.3.3");
 
         dns.putHosts("qiniu.com", "4.4.4.4", NetworkInfo.ISP_CNC);
-        Domain d = new Domain("qiniu.com", true, true);
+        Domain d = new Domain("qiniu.com", false, false, 10);
         String[] r = dns.query(d);
         Assert.assertEquals(1, r.length);
         Assert.assertEquals("4.4.4.4", r[0]);
+
+        d = new Domain("qiniu.com", false, false, 1000);
+        r = dns.query(d);
+        Assert.assertEquals(1, r.length);
+        Assert.assertTrue(!"4.4.4.4".equals(r[0]));
     }
 
     public void testCname() throws IOException {

@@ -5,6 +5,8 @@ import com.qiniu.android.dns.util.BitSet;
 import com.qiniu.android.dns.util.LruCache;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 
@@ -177,5 +179,19 @@ public final class DnsManager {
     public DnsManager putHosts(String domain, String ip) {
         hosts.put(domain, ip);
         return this;
+    }
+
+    private String[] systemResolv(String domain){
+        try {
+            InetAddress[] addresses = InetAddress.getAllByName(domain);
+            String[] x = new String[addresses.length];
+            for (int i = 0; i < addresses.length; i++) {
+                x[i] = addresses[i].getHostAddress();
+            }
+            return x;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

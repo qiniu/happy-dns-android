@@ -35,7 +35,31 @@ public final class Resolver implements IResolver {
         if (answer == null) {
             throw new DnsException(domain.domain, "cant get answer");
         }
-        return DnsMessage.parseResponse(answer, id, domain.domain);
+        Record[] records= DnsMessage.parseResponse(answer, id, domain.domain);
+        if (domain.hasCname) {
+            boolean cname = false;
+            for (Record r : records) {
+                if (r.isCname()) {
+                    cname = true;
+                    break;
+                }
+            }
+            if (!cname) {
+                throw new DnshijackingException(domain.domain,
+                        address.getHostAddress());
+            }
+        }
+        if (domain.maxTtl != 0) {
+            for (Record r : records) {
+                if (!r.isCname()) {
+                    if (r.ttl > domain.maxTtl) {
+                        throw new DnshijackingException(domain.domain,
+                                address.getHostAddress(), r.ttl);
+                    }
+                }
+            }
+        }
+        return records;
     }
 
     private byte[] udpCommunicate(byte[] question) throws IOException {

@@ -1,5 +1,5 @@
 <manifest
-    package="com.qiniu.android"
+    package="com.qiniu.android.dns"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>

@@ -16,7 +16,7 @@ import java.net.UnknownHostException;
  * Created by bailong on 15/6/21.
  */
 public class DnsTest extends AndroidTestCase {
-    public void testDns() throws UnknownHostException {
+    public void testDns() throws IOException {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver();
         resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));

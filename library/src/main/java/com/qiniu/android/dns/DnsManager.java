@@ -60,6 +60,7 @@ public final class DnsManager {
      * 查询域名
      *
      * @param domain 域名
+     * @throws IOException 网络异常或者无法解析抛出异常
      * @return ip 列表
      */
     public String[] query(String domain) throws IOException {
@@ -70,8 +71,10 @@ public final class DnsManager {
      * 查询域名
      *
      * @param domain 域名参数
+     * @throws IOException 网络异常或者无法解析抛出异常
      * @return ip 列表
      */
+
     public String[] query(Domain domain) throws IOException {
 //        有些手机网络状态可能不对
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){

@@ -60,8 +60,8 @@ public final class DnsManager {
      * 查询域名
      *
      * @param domain 域名
-     * @throws IOException 网络异常或者无法解析抛出异常
      * @return ip 列表
+     * @throws IOException 网络异常或者无法解析抛出异常
      */
     public String[] query(String domain) throws IOException {
         return query(new Domain(domain));
@@ -71,8 +71,8 @@ public final class DnsManager {
      * 查询域名
      *
      * @param domain 域名参数
-     * @throws IOException 网络异常或者无法解析抛出异常
      * @return ip 列表
+     * @throws IOException 网络异常或者无法解析抛出异常
      */
 
     public String[] query(Domain domain) throws IOException {
@@ -108,7 +108,7 @@ public final class DnsManager {
         synchronized (resolversStatus) {
             firstOk = 32 - resolversStatus.leadingZeros();
         }
-        IOException lastE;
+        IOException lastE = null;
         for (int i = 0; i < resolvers.length; i++) {
             int pos = (firstOk + i) % resolvers.length;
             NetworkInfo before = info;
@@ -133,7 +133,13 @@ public final class DnsManager {
 
         if (records == null || records.length == 0) {
             if (!domain.hostsFirst) {
-                return hosts.query(domain, info);
+                String[] rs = hosts.query(domain, info);
+                if (rs != null && rs.length != 0) {
+                    return rs;
+                }
+            }
+            if (lastE != null) {
+                throw lastE;
             }
             throw new UnknownHostException(domain.domain);
         }
@@ -149,9 +155,6 @@ public final class DnsManager {
 
     public InetAddress[] queryInetAdress(Domain domain) throws IOException {
         String[] ips = query(domain);
-        if (ips == null || ips.length == 0) {
-            throw new UnknownHostException();
-        }
         InetAddress[] addresses = new InetAddress[ips.length];
         for (int i = 0; i < ips.length; i++) {
             addresses[i] = InetAddress.getByName(ips[i]);

@@ -10,7 +10,6 @@ import junit.framework.Assert;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * Created by bailong on 15/6/21.

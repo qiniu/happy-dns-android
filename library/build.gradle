@@ -36,13 +36,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
 
-//task releaseJar(type: Copy, dependsOn: 'build') {
-//    from('build/intermediates/bundles/release')
-//    into('../releases')
-//    include('classes.jar')
-//    rename('classes.jar', 'happy-dns-' + version + '.jar')
-//}
-
 task releaseJar(type:Jar, dependsOn: 'build') {
     //指定生成的jar名
     baseName 'happy-dns-' + version

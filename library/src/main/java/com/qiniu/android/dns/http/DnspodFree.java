@@ -15,7 +15,7 @@ import java.net.URL;
  */
 public final class DnspodFree implements IResolver {
     @Override
-    public Record[] query(Domain domain, NetworkInfo info) throws IOException {
+    public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         URL url = new URL("http://119.29.29.29/d?ttl=1&dn=" + domain.domain);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         int responseCode = httpConn.getResponseCode();

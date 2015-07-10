@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.IDN;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
@@ -151,7 +152,7 @@ public final class DnsMessage {
         if ((c & 0xc0) == 0xc0) {
             c = ((c & 0x3f) << 8) + (data[offset + 1] & 0xff);
             if (jumps.contains(c)) {
-                throw new IOException("Cyclic offsets detected.");
+                throw new DnsException("", "Cyclic offsets detected.");
             }
             jumps.add(c);
             return readName(data, c, jumps);
@@ -213,7 +214,7 @@ public final class DnsMessage {
                 break;
         }
         if (payload == null) {
-            throw new IOException("no record");
+            throw new UnknownHostException("no record");
         }
         return new Record(payload, type, (int) ttl, System.currentTimeMillis() / 1000);
     }

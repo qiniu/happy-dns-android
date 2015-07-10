@@ -107,7 +107,7 @@ public final class AndroidDnsServer {
 //        the system dns ip would change after network changed.
         return new IResolver() {
             @Override
-            public Record[] query(Domain domain, NetworkInfo info) throws IOException {
+            public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
                 InetAddress[] addresses = getByReflection();
                 if (addresses == null) {
                     addresses = getByCommand();
@@ -115,7 +115,32 @@ public final class AndroidDnsServer {
                 if (addresses == null) {
                     throw new IOException("cant get local dns server");
                 }
-                return new Resolver(addresses[0]).query(domain, info);
+                IResolver resolver = new HijackingDetectWrapper(new Resolver(addresses[0]));
+                Record[] records = resolver.resolve(domain, info);
+                if (domain.hasCname) {
+                    boolean cname = false;
+                    for (Record r : records) {
+                        if (r.isCname()) {
+                            cname = true;
+                            break;
+                        }
+                    }
+                    if (!cname) {
+                        throw new DnshijackingException(domain.domain,
+                                addresses[0].getHostAddress());
+                    }
+                }
+                if (domain.maxTtl != 0) {
+                    for (Record r : records) {
+                        if (!r.isCname()) {
+                            if (r.ttl > domain.maxTtl) {
+                                throw new DnshijackingException(domain.domain,
+                                        addresses[0].getHostAddress(), r.ttl);
+                            }
+                        }
+                    }
+                }
+                return records;
             }
         };
     }

@@ -3,6 +3,7 @@ package com.qiniu.android.dns;
 import android.test.AndroidTestCase;
 
 import com.qiniu.android.dns.local.AndroidDnsServer;
+import com.qiniu.android.dns.local.HijackingDetectWrapper;
 import com.qiniu.android.dns.local.Resolver;
 
 import junit.framework.Assert;
@@ -45,8 +46,10 @@ public class DnsTest extends AndroidTestCase {
     public void testTtl() throws IOException {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver();
-        resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
-        DnsManager dns = new DnsManager(new NetworkInfo(NetworkInfo.NetSatus.MOBILE, NetworkInfo.ISP_CNC), resolvers);
+        resolvers[1] = new HijackingDetectWrapper(
+                new Resolver(InetAddress.getByName("223.5.5.5")));
+        DnsManager dns = new DnsManager(new NetworkInfo(
+                NetworkInfo.NetSatus.MOBILE, NetworkInfo.ISP_CNC), resolvers);
 
         dns.putHosts("hello.qiniu.com", "1.1.1.1");
         dns.putHosts("hello.qiniu.com", "2.2.2.2");
@@ -67,7 +70,8 @@ public class DnsTest extends AndroidTestCase {
     public void testCname() throws IOException {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver();
-        resolvers[1] = new Resolver(InetAddress.getByName("114.114.115.115"));
+        resolvers[1] = new HijackingDetectWrapper(
+                new Resolver(InetAddress.getByName("114.114.115.115")));
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
 
         dns.putHosts("hello.qiniu.com", "1.1.1.1");

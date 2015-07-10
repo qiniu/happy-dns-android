@@ -16,5 +16,5 @@ public interface IResolver {
      * @return dns记录列表
      * @throws IOException 劫持或者网络异常
      */
-    Record[] query(Domain domain, NetworkInfo info) throws IOException;
+    Record[] resolve(Domain domain, NetworkInfo info) throws IOException;
 }

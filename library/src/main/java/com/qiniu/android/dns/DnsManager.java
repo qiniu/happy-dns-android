@@ -1,5 +1,6 @@
 package com.qiniu.android.dns;
 
+import com.qiniu.android.dns.http.DomainNotOwn;
 import com.qiniu.android.dns.local.Hosts;
 import com.qiniu.android.dns.util.BitSet;
 import com.qiniu.android.dns.util.LruCache;
@@ -61,7 +62,7 @@ public final class DnsManager {
      * @param domain 域名
      * @return ip 列表
      */
-    public String[] query(String domain) {
+    public String[] query(String domain) throws IOException {
         return query(new Domain(domain));
     }
 
@@ -71,7 +72,7 @@ public final class DnsManager {
      * @param domain 域名参数
      * @return ip 列表
      */
-    public String[] query(Domain domain) {
+    public String[] query(Domain domain) throws IOException {
 //        有些手机网络状态可能不对
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){
 //            return null;
@@ -104,14 +105,17 @@ public final class DnsManager {
         synchronized (resolversStatus) {
             firstOk = 32 - resolversStatus.leadingZeros();
         }
-
+        IOException lastE;
         for (int i = 0; i < resolvers.length; i++) {
             int pos = (firstOk + i) % resolvers.length;
             NetworkInfo before = info;
             String ip = Network.getIp();
             try {
-                records = resolvers[pos].query(domain, info);
+                records = resolvers[pos].resolve(domain, info);
+            } catch (DomainNotOwn e) {
+                continue;
             } catch (IOException e) {
+                lastE = e;
                 e.printStackTrace();
             }
             String ip2 = Network.getIp();
@@ -128,13 +132,28 @@ public final class DnsManager {
             if (!domain.hostsFirst) {
                 return hosts.query(domain, info);
             }
-            return null;
+            throw new UnknownHostException(domain.domain);
         }
         records = trimCname(records);
+        if (records.length == 0) {
+            throw new UnknownHostException("no A records");
+        }
         synchronized (cache) {
             cache.put(domain.domain, records);
         }
         return records2Ip(records);
+    }
+
+    public InetAddress[] queryInetAdress(Domain domain) throws IOException {
+        String[] ips = query(domain);
+        if (ips == null || ips.length == 0) {
+            throw new UnknownHostException();
+        }
+        InetAddress[] addresses = new InetAddress[ips.length];
+        for (int i = 0; i < ips.length; i++) {
+            addresses[i] = InetAddress.getByName(ips[i]);
+        }
+        return addresses;
     }
 
     /**
@@ -179,19 +198,5 @@ public final class DnsManager {
     public DnsManager putHosts(String domain, String ip) {
         hosts.put(domain, ip);
         return this;
-    }
-
-    private String[] systemResolv(String domain) {
-        try {
-            InetAddress[] addresses = InetAddress.getAllByName(domain);
-            String[] x = new String[addresses.length];
-            for (int i = 0; i < addresses.length; i++) {
-                x[i] = addresses[i].getHostAddress();
-            }
-            return x;
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

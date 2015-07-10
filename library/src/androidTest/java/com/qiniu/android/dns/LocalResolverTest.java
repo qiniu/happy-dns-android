@@ -23,10 +23,10 @@ public class LocalResolverTest extends AndroidTestCase {
 
     private void template(IResolver resolver) {
         try {
-            Record[] records = resolver.query(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
-            records = resolver.query(new Domain("www.qiniu.com"), null);
+            records = resolver.resolve(new Domain("www.qiniu.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length >= 3);
         } catch (IOException e) {

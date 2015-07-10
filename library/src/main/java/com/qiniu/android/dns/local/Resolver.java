@@ -18,14 +18,14 @@ import java.util.Random;
 public final class Resolver implements IResolver {
     private static final Random random = new Random();
 
-    private final InetAddress address;
+    final InetAddress address;
 
     public Resolver(InetAddress address) {
         this.address = address;
     }
 
     @Override
-    public Record[] query(Domain domain, NetworkInfo info) throws IOException {
+    public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         int id;
         synchronized (random) {
             id = random.nextInt() & 0XFF;
@@ -36,29 +36,7 @@ public final class Resolver implements IResolver {
             throw new DnsException(domain.domain, "cant get answer");
         }
         Record[] records = DnsMessage.parseResponse(answer, id, domain.domain);
-        if (domain.hasCname) {
-            boolean cname = false;
-            for (Record r : records) {
-                if (r.isCname()) {
-                    cname = true;
-                    break;
-                }
-            }
-            if (!cname) {
-                throw new DnshijackingException(domain.domain,
-                        address.getHostAddress());
-            }
-        }
-        if (domain.maxTtl != 0) {
-            for (Record r : records) {
-                if (!r.isCname()) {
-                    if (r.ttl > domain.maxTtl) {
-                        throw new DnshijackingException(domain.domain,
-                                address.getHostAddress(), r.ttl);
-                    }
-                }
-            }
-        }
+
         return records;
     }
 

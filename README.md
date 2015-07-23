@@ -30,7 +30,7 @@ $ ./gradlew connectedAndroidTest
 
 ## 运行环境
 
-Android 最低要求 2.3
+Android 最低要求 2.2
 
 ## 代码贡献
 

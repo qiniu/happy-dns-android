@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by bailong on 15/7/10.
  */
-public class HijackingDetectWrapper implements IResolver {
+public final class HijackingDetectWrapper implements IResolver {
     private final Resolver resolver;
 
     public HijackingDetectWrapper(Resolver r) {

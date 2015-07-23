@@ -2,7 +2,6 @@ package com.qiniu.android.dns;
 
 import com.qiniu.android.dns.http.DomainNotOwn;
 import com.qiniu.android.dns.local.Hosts;
-import com.qiniu.android.dns.util.BitSet;
 import com.qiniu.android.dns.util.LruCache;
 
 import java.io.IOException;
@@ -18,9 +17,9 @@ public final class DnsManager {
 
     private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
-    private final BitSet resolversStatus = new BitSet();
     private final Hosts hosts = new Hosts();
     private volatile NetworkInfo info = null;
+    private volatile int index = 0;
 
     /**
      * @param info      当前的网络信息，从Android context中获取
@@ -91,8 +90,8 @@ public final class DnsManager {
         synchronized (cache) {
             if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()) {
                 cache.clear();
-                synchronized (resolversStatus) {
-                    resolversStatus.clear();
+                synchronized (resolvers) {
+                    index = 0;
                 }
             } else {
                 records = cache.get(domain.domain);
@@ -104,13 +103,9 @@ public final class DnsManager {
             }
         }
 
-        int firstOk;
-        synchronized (resolversStatus) {
-            firstOk = 32 - resolversStatus.leadingZeros();
-        }
         IOException lastE = null;
         for (int i = 0; i < resolvers.length; i++) {
-            int pos = (firstOk + i) % resolvers.length;
+            int pos = (index + i) % resolvers.length;
             NetworkInfo before = info;
             String ip = Network.getIp();
             try {
@@ -123,8 +118,8 @@ public final class DnsManager {
             }
             String ip2 = Network.getIp();
             if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {
-                synchronized (resolversStatus) {
-                    resolversStatus.set(pos);
+                synchronized (resolvers) {
+                    index++;
                 }
             } else {
                 break;
@@ -170,8 +165,8 @@ public final class DnsManager {
     public void onNetworkChange(NetworkInfo info) {
         clearCache();
         this.info = info == null ? NetworkInfo.normal : info;
-        synchronized (resolversStatus) {
-            resolversStatus.clear();
+        synchronized (resolvers) {
+            index = 0;
         }
     }
 
@@ -187,7 +182,7 @@ public final class DnsManager {
      * @param domain   域名
      * @param ip       ip
      * @param provider 运营商，见 NetworkInfo
-     * @return 当前的Dnsmanager，便于链式调用
+     * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, String ip, int provider) {
         hosts.put(domain, new Hosts.Value(ip, provider));
@@ -199,7 +194,7 @@ public final class DnsManager {
      *
      * @param domain 域名
      * @param ip     ip
-     * @return 当前的Dnsmanager，便于链式调用
+     * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, String ip) {
         hosts.put(domain, ip);

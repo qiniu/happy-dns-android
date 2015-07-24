@@ -24,7 +24,7 @@ android {
     buildToolsVersion '22.0.1'
     defaultConfig {
         //applicationId "com.qiniu.android.dns"
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 22
         versionCode code
         versionName version

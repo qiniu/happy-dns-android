@@ -21,7 +21,6 @@ import java.io.IOException;
 
 /**
  * Converts hexadecimal Strings.
- * <p/>
  * This class is thread-safe.
  *
  * @version $Id: Hex.java 1619948 2014-08-22 22:53:55Z ggregory $

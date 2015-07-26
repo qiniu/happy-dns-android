@@ -34,6 +34,7 @@ public final class DnsManager {
     /**
      * @param info      当前的网络信息，从Android context中获取
      * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
+     * @param sorter    外部接口，对获取的IP数组进行排序
      */
     public DnsManager(NetworkInfo info, IResolver[] resolvers, IpSorter sorter) {
         this.info = info == null ? NetworkInfo.normal : info;

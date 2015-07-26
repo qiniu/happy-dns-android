@@ -21,7 +21,7 @@ public final class Hosts {
             return null;
         }
         vals = filte(vals, info);
-        return shuffle(vals);
+        return toIps(vals);
     }
 
     private ArrayList<Value> filte(ArrayList<Value> origin, NetworkInfo info) {
@@ -42,13 +42,12 @@ public final class Hosts {
         return normal;
     }
 
-    public String[] shuffle(ArrayList<Value> vals) {
+    public String[] toIps(ArrayList<Value> vals) {
         int size = vals.size();
-        int step = (random.nextInt(size) & 0XFF);
 
         String[] r = new String[size];
         for (int i = 0; i < size; i++) {
-            Value v = vals.get((i + step) % size);
+            Value v = vals.get(i);
             r[i] = v.ip;
         }
         return r;

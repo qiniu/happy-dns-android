@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -18,6 +19,7 @@ public final class DnsManager {
     private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
     private final Hosts hosts = new Hosts();
+    private final IpSorter sorter;
     private volatile NetworkInfo info = null;
     private volatile int index = 0;
 
@@ -26,9 +28,18 @@ public final class DnsManager {
      * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
      */
     public DnsManager(NetworkInfo info, IResolver[] resolvers) {
+        this(info, resolvers, null);
+    }
+
+    /**
+     * @param info      当前的网络信息，从Android context中获取
+     * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
+     */
+    public DnsManager(NetworkInfo info, IResolver[] resolvers, IpSorter sorter) {
         this.info = info == null ? NetworkInfo.normal : info;
         this.resolvers = resolvers.clone();
         cache = new LruCache<>();
+        this.sorter = sorter == null ? new ShuffleIps() : sorter;
     }
 
     private static Record[] trimCname(Record[] records) {
@@ -66,6 +77,14 @@ public final class DnsManager {
         return query(new Domain(domain));
     }
 
+    public String[] query(Domain domain) throws IOException {
+        String[] r = queryInternal(domain);
+        if (r == null || r.length <= 1) {
+            return r;
+        }
+        return sorter.sort(r);
+    }
+
     /**
      * 查询域名
      *
@@ -74,7 +93,7 @@ public final class DnsManager {
      * @throws IOException 网络异常或者无法解析抛出异常
      */
 
-    public String[] query(Domain domain) throws IOException {
+    private String[] queryInternal(Domain domain) throws IOException {
 //        有些手机网络状态可能不对
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){
 //            return null;
@@ -199,5 +218,22 @@ public final class DnsManager {
     public DnsManager putHosts(String domain, String ip) {
         hosts.put(domain, ip);
         return this;
+    }
+
+    private static class ShuffleIps implements IpSorter {
+        private AtomicInteger pos = new AtomicInteger();
+
+        @Override
+        public String[] sort(String[] ips) {
+            if (ips == null || ips.length <= 1) {
+                return ips;
+            }
+            int x = pos.getAndIncrement() & 0XFF;
+            String[] ret = new String[ips.length];
+            for (int i = 0; i < ips.length; i++) {
+                ret[i] = ips[(i + x) % ips.length];
+            }
+            return ret;
+        }
     }
 }

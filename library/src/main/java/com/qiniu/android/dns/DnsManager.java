@@ -124,8 +124,9 @@ public final class DnsManager {
         }
 
         IOException lastE = null;
+        int firstOk = index;
         for (int i = 0; i < resolvers.length; i++) {
-            int pos = (index + i) % resolvers.length;
+            int pos = (firstOk + i) % resolvers.length;
             NetworkInfo before = info;
             String ip = Network.getIp();
             try {
@@ -140,6 +141,9 @@ public final class DnsManager {
             if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {
                 synchronized (resolvers) {
                     index++;
+                    if (index == resolvers.length){
+                        index = 0;
+                    }
                 }
             } else {
                 break;

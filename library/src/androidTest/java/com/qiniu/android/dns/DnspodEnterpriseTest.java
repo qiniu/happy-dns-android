@@ -18,7 +18,7 @@ public class DnspodEnterpriseTest extends AndroidTestCase {
 //    }
 //
 //    public void testNotFound() throws IOException {
-//        DnspodEnterprise resolver = new DnspodEnterprise("46", "vf-D8b-5");
+//        DnspodEnterprise resolver = new DnspodEnterprise("007", "abcdef");
 //        try {
 //            Record[] records = resolver.resolve(new Domain("7777777.qiniu.com"), null);
 //            Assert.assertNull(records);

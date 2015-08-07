@@ -106,7 +106,6 @@ public final class DnsManager {
                 return ret;
             }
         }
-        long now = System.currentTimeMillis();
         synchronized (cache) {
             if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()) {
                 cache.clear();
@@ -116,7 +115,7 @@ public final class DnsManager {
             } else {
                 records = cache.get(domain.domain);
                 if (records != null && records.length != 0) {
-                    if (records[0].isExpired(now)) {
+                    if (!records[0].isExpired()) {
                         return records2Ip(records);
                     }
                 }
@@ -140,9 +139,11 @@ public final class DnsManager {
             String ip2 = Network.getIp();
             if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {
                 synchronized (resolvers) {
-                    index++;
-                    if (index == resolvers.length){
-                        index = 0;
+                    if (index == firstOk) {
+                        index++;
+                        if (index == resolvers.length) {
+                            index = 0;
+                        }
                     }
                 }
             } else {

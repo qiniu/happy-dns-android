@@ -53,7 +53,7 @@ public class LocalResolverTest extends AndroidTestCase {
 //        template("180.76.76.76");
 //    }
 
-    //    http://www.sdns.cn/
+    //    http://www.sdns.cn/ cnnic
 //    public void testCnnic() throws UnknownHostException {
 //        template("1.2.4.8");
 //    }
@@ -62,7 +62,11 @@ public class LocalResolverTest extends AndroidTestCase {
         template("8.8.4.4");
     }
 
-    //    http://www.dnspai.com/
+    public void testDnspod() throws UnknownHostException {
+        template("119.29.29.29");
+    }
+
+    //    http://www.dnspai.com/ 360dns
 //    public void testDnspai() throws UnknownHostException {
 //        template("101.226.4.6");
 //    }

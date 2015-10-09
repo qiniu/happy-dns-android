@@ -1,5 +1,10 @@
 #Changelog
 
+## 0.2.4 (2015-10-09)
+
+### 修正
+* 将http client改为 httpurlconnection, 兼容android 6.0
+
 ## 0.2.3.2 (2015-08-07)
 
 ### 修正

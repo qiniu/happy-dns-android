@@ -28,6 +28,8 @@ public final class DnspodFree implements IResolver {
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         URL url = new URL("http://119.29.29.29/d?ttl=1&dn=" + domain.domain);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+        httpConn.setConnectTimeout(5000);
+        httpConn.setReadTimeout(10000);
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             return null;

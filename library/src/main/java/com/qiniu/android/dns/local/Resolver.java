@@ -35,9 +35,8 @@ public final class Resolver implements IResolver {
         if (answer == null) {
             throw new DnsException(domain.domain, "cant get answer");
         }
-        Record[] records = DnsMessage.parseResponse(answer, id, domain.domain);
 
-        return records;
+        return DnsMessage.parseResponse(answer, id, domain.domain);
     }
 
     private byte[] udpCommunicate(byte[] question) throws IOException {
@@ -46,7 +45,7 @@ public final class Resolver implements IResolver {
             socket = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(question, question.length,
                     address, 53);
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(10000);
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);
             socket.receive(packet);

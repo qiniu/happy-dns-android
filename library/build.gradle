@@ -62,3 +62,5 @@ setProperty('VERSION_NAME', version)
 setProperty('VERSION_CODE', code)
 
 apply from: '../mvn_push.gradle'
+
+//apply from: '../jcenter_push.gradle'

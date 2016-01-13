@@ -43,6 +43,9 @@ public final class DnspodFree implements IResolver {
         byte[] data = new byte[length];
         int read = is.read(data);
         is.close();
+        if (read <= 0){
+            return null;
+        }
         String response = new String(data, 0, read);
         String[] r1 = response.split(",");
         if (r1.length != 2) {

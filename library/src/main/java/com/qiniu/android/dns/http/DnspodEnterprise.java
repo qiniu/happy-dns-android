@@ -60,7 +60,7 @@ public final class DnspodEnterprise implements IResolver {
         byte[] data = new byte[length];
         int read = is.read(data);
         is.close();
-        if (length == 0){
+        if (read <= 0){
             return null;
         }
         String response = new String(data, 0, read);

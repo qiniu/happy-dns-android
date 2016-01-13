@@ -1,0 +1,80 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "com.jfrog.bintray"
+
+group = 'com.qiniu'   // Maven Group ID for the artifact
+version = '0.0.1'
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                name 'happy-dns'
+                description = 'Qiniu Happy Dns for Android'
+                url 'https://github.com/qiniu/happy-dns-android'
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'qiniusdk'
+                        name 'Qiniu SDK'
+                        email 'sdk@qiniu.com'
+                    }
+                }
+                scm {
+                    connection 'git@github.com:qiniu/happy-dns-android.git'
+                    developerConnection 'git@github.com:qiniu/happy-dns-android.git'
+                    url 'https://github.com/qiniu/happy-dns-android'
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = getProperty("bintray.user")
+    key = getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        // it is the name that appears in bintray when logged
+        name = 'happy-dns'
+        websiteUrl = 'https://github.com/qiniu/happy-dns-android'
+        vcsUrl = 'git@github.com:qiniu/happy-dns-android.git'
+        licenses = ["MIT"]
+        publish = true
+        version {
+            gpg {
+                sign = true
+                passphrase = getProperty("bintray.gpg.password")
+            }
+        }
+    }
+}

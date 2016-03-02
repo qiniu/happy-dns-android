@@ -36,14 +36,14 @@ public final class DnspodFree implements IResolver {
         }
 
         int length = httpConn.getContentLength();
-        if (length <= 0 || length > 1024){
+        if (length <= 0 || length > 1024) {
             return null;
         }
         InputStream is = httpConn.getInputStream();
         byte[] data = new byte[length];
         int read = is.read(data);
         is.close();
-        if (read <= 0){
+        if (read <= 0) {
             return null;
         }
         String response = new String(data, 0, read);

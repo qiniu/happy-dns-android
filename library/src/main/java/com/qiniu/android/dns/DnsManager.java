@@ -79,6 +79,13 @@ public final class DnsManager {
     }
 
     public String[] query(Domain domain) throws IOException {
+        if (domain == null) {
+            throw new IOException("null domain");
+        }
+        if (domain.domain == null || domain.domain.trim().length() == 0) {
+            throw new IOException("empty domain " + domain.domain);
+        }
+
         String[] r = queryInternal(domain);
         if (r == null || r.length <= 1) {
             return r;

@@ -128,4 +128,36 @@ public class DnsTest extends AndroidTestCase {
         Assert.assertEquals("2.2.2.2", ips[0]);
         Assert.assertEquals("1.1.1.1", ips[1]);
     }
+
+    public void testNull() {
+        IResolver[] resolvers = new IResolver[1];
+        resolvers[0] = AndroidDnsServer.defaultResolver();
+        DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
+        IOException e = null;
+        try {
+            dns.query((String) null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            e = ex;
+        }
+
+        assertNotNull(e);
+        e = null;
+        try {
+            dns.query((Domain) null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            e = ex;
+        }
+
+        assertNotNull(e);
+        e = null;
+        try {
+            dns.query("");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            e = ex;
+        }
+        assertNotNull(e);
+    }
 }

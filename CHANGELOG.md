@@ -1,5 +1,11 @@
 #Changelog
 
+## 0.2.6 (2016-03-02)
+
+### 修正
+* 传入null的行为改为抛出IOexception
+* 传入IP 直接返回该IP
+
 ## 0.2.5 (2015-12-24)
 
 ### 修正
@@ -8,7 +14,7 @@
 ## 0.2.4 (2015-10-09)
 
 ### 修正
-* 将http client改为 httpurlconnection, 兼容android 6.0
+* 将HttpClient改为 HttpUrlConnection, 兼容android 6.0
 
 ## 0.2.3.2 (2015-08-07)
 

@@ -67,6 +67,29 @@ public final class DnsManager {
         return a.toArray(new String[a.size()]);
     }
 
+    public static boolean validIP(String ip) {
+        if (ip == null || ip.length() < 7 || ip.length() > 15) return false;
+        if (ip.contains("-")) return false;
+
+        try {
+            int x = 0;
+            int y = ip.indexOf('.');
+
+            if (y != -1 && Integer.parseInt(ip.substring(x, y)) > 255) return false;
+
+            x = ip.indexOf('.', ++y);
+            if (x != -1 && Integer.parseInt(ip.substring(y, x)) > 255) return false;
+
+            y = ip.indexOf('.', ++x);
+            return !(y != -1 && Integer.parseInt(ip.substring(x, y)) > 255 &&
+                    Integer.parseInt(ip.substring(++y, ip.length() - 1)) > 255 &&
+                    ip.charAt(ip.length() - 1) != '.');
+
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /**
      * 查询域名
      *
@@ -84,6 +107,10 @@ public final class DnsManager {
         }
         if (domain.domain == null || domain.domain.trim().length() == 0) {
             throw new IOException("empty domain " + domain.domain);
+        }
+
+        if (validIP(domain.domain)) {
+            return new String[]{domain.domain};
         }
 
         String[] r = queryInternal(domain);

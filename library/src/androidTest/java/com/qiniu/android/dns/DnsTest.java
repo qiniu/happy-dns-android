@@ -160,4 +160,13 @@ public class DnsTest extends AndroidTestCase {
         }
         assertNotNull(e);
     }
+
+    public void testIp() throws IOException {
+        IResolver[] resolvers = new IResolver[1];
+        resolvers[0] = AndroidDnsServer.defaultResolver();
+        DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
+        String[] ips = dns.query("1.1.1.1");
+        assertEquals(ips.length, 1);
+        assertEquals(ips[0], "1.1.1.1");
+    }
 }

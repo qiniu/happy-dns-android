@@ -151,6 +151,8 @@ public final class DnsManager {
                 if (records != null && records.length != 0) {
                     if (!records[0].isExpired()) {
                         return records2Ip(records);
+                    }else{
+                        records = null;
                     }
                 }
             }

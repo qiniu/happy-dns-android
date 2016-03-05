@@ -29,6 +29,12 @@ public class LocalResolverTest extends AndroidTestCase {
             records = resolver.resolve(new Domain("www.qiniu.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length >= 3);
+
+            for (Record r:records) {
+                Assert.assertTrue(r.value, r.ttl>=600);
+                Assert.assertTrue(r.value, r.isA()||r.isCname());
+                Assert.assertFalse(r.value, r.isExpired());
+            }
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }

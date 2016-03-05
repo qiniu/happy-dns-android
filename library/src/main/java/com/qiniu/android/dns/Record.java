@@ -4,6 +4,8 @@ package com.qiniu.android.dns;
  * Created by bailong on 15/6/12.
  */
 public final class Record {
+    public static final int TTL_MIN_SECONDS = 600;
+
     /**
      * A 记录 类型
      */
@@ -15,7 +17,7 @@ public final class Record {
     public static final int TYPE_CNAME = 5;
 
     /**
-     * 具体的值，A 记录时为IP，Cname时为指向的域名
+     * 具体的值，A 记录时为IP，CName时为指向的域名
      */
     public final String value;
 
@@ -37,7 +39,7 @@ public final class Record {
     public Record(String value, int type, int ttl, long timeStamp) {
         this.value = value;
         this.type = type;
-        this.ttl = ttl;
+        this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
         this.timeStamp = timeStamp;
     }
 

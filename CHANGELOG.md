@@ -1,9 +1,15 @@
 #Changelog
 
+## 0.2.7 (2016-03-05)
+
+### 修正
+* record cache 过期后不应返回 by 小影
+* record 默认 600s 最小 by 小影
+
 ## 0.2.6 (2016-03-02)
 
 ### 修正
-* 传入null的行为改为抛出IOexception
+* 传入null的行为改为抛出IOException
 * 传入IP 直接返回该IP
 
 ## 0.2.5 (2015-12-24)

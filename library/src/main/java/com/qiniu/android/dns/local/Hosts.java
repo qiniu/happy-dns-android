@@ -5,7 +5,6 @@ import com.qiniu.android.dns.NetworkInfo;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Random;
 
 /**
  * Created by bailong on 15/6/18.
@@ -13,31 +12,30 @@ import java.util.Random;
 public final class Hosts {
 
     private final Hashtable<String, ArrayList<Value>> hosts = new Hashtable<>();
-    private final Random random = new Random();
 
     public String[] query(Domain domain, NetworkInfo info) {
-        ArrayList<Value> vals = hosts.get(domain.domain);
-        if (vals == null || vals.isEmpty()) {
+        ArrayList<Value> values = hosts.get(domain.domain);
+        if (values == null || values.isEmpty()) {
             return null;
         }
-        vals = filte(vals, info);
-        return toIps(vals);
+        values = filter(values, info);
+        return toIps(values);
     }
 
-    private ArrayList<Value> filte(ArrayList<Value> origin, NetworkInfo info) {
+    private ArrayList<Value> filter(ArrayList<Value> origin, NetworkInfo info) {
         ArrayList<Value> normal = new ArrayList<>();
-        ArrayList<Value> specical = new ArrayList<>();
+        ArrayList<Value> special = new ArrayList<>();
         for (Value v : origin) {
             if (v.provider == NetworkInfo.ISP_GENERAL) {
                 normal.add(v);
             }
             if (info.provider != NetworkInfo.ISP_GENERAL
                     && v.provider == info.provider) {
-                specical.add(v);
+                special.add(v);
             }
         }
-        if (specical.size() != 0) {
-            return specical;
+        if (special.size() != 0) {
+            return special;
         }
         return normal;
     }

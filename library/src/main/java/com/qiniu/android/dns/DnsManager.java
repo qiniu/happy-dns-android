@@ -40,7 +40,7 @@ public final class DnsManager {
         this.info = info == null ? NetworkInfo.normal : info;
         this.resolvers = resolvers.clone();
         cache = new LruCache<>();
-        this.sorter = sorter == null ? new ShuffleIps() : sorter;
+        this.sorter = sorter == null ? new DummySorter() : sorter;
     }
 
     private static Record[] trimCname(Record[] records) {
@@ -51,6 +51,14 @@ public final class DnsManager {
             }
         }
         return a.toArray(new Record[a.size()]);
+    }
+
+    private static void rotate(Record[] records) {
+        if (records != null && records.length > 1) {
+            Record first = records[0];
+            System.arraycopy(records, 1, records, 0, records.length - 1);
+            records[records.length - 1] = first;
+        }
     }
 
     private static String[] records2Ip(Record[] records) {
@@ -150,8 +158,11 @@ public final class DnsManager {
                 records = cache.get(domain.domain);
                 if (records != null && records.length != 0) {
                     if (!records[0].isExpired()) {
+                        if (records.length > 1) {
+                            rotate(records);
+                        }
                         return records2Ip(records);
-                    }else{
+                    } else {
                         records = null;
                     }
                 }
@@ -262,20 +273,12 @@ public final class DnsManager {
         return this;
     }
 
-    private static class ShuffleIps implements IpSorter {
+    private static class DummySorter implements IpSorter {
         private AtomicInteger pos = new AtomicInteger();
 
         @Override
         public String[] sort(String[] ips) {
-            if (ips == null || ips.length <= 1) {
-                return ips;
-            }
-            int x = pos.getAndIncrement() & 0XFF;
-            String[] ret = new String[ips.length];
-            for (int i = 0; i < ips.length; i++) {
-                ret[i] = ips[(i + x) % ips.length];
-            }
-            return ret;
+            return ips;
         }
     }
 }

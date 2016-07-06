@@ -18,8 +18,8 @@ public class DnspodFreeTest extends AndroidTestCase {
             Record[] records = resolver.resolve(new Domain("baidu.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
-            for (Record r:records) {
-                Assert.assertTrue(r.ttl>=600);
+            for (Record r : records) {
+                Assert.assertTrue(r.ttl >= 600);
                 Assert.assertTrue(r.isA());
                 Assert.assertFalse(r.isExpired());
             }

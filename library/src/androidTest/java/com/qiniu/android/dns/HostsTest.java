@@ -19,9 +19,13 @@ public class HostsTest extends AndroidTestCase {
         hosts.put("qiniu.com", "3.3.3.3");
         String[] r = hosts.query(new Domain("hello.qiniu.com"), NetworkInfo.normal);
         Assert.assertEquals(2, r.length);
-        Assert.assertTrue(r[0].equals("1.1.1.1") || r[0].equals("2.2.2.2"));
-        Assert.assertTrue(r[1].equals("1.1.1.1") || r[1].equals("2.2.2.2"));
-        Assert.assertTrue(!r[0].equals(r[1]));
+        Assert.assertTrue(r[0].equals("2.2.2.2"));
+        Assert.assertTrue(r[1].equals("1.1.1.1"));
+
+        String[] r2 = hosts.query(new Domain("hello.qiniu.com"), NetworkInfo.normal);
+        Assert.assertEquals(2, r2.length);
+        Assert.assertTrue(r2[1].equals("2.2.2.2"));
+        Assert.assertTrue(r2[0].equals("1.1.1.1"));
     }
 
     public void testCnc() throws IOException {

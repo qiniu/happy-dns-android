@@ -18,6 +18,11 @@ public final class Hosts {
         if (values == null || values.isEmpty()) {
             return null;
         }
+        if (values.size() > 1) {
+            Value first = values.get(0);
+            values.remove(0);
+            values.add(first);
+        }
         values = filter(values, info);
         return toIps(values);
     }

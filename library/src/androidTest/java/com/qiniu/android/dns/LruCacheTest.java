@@ -19,7 +19,7 @@ public class LruCacheTest extends AndroidTestCase {
         Assert.assertNull(x.get("1"));
         Assert.assertEquals("2", x.get("2"));
         Assert.assertEquals("3", x.get("3"));
-        x.delete("2");
+        x.remove("2");
         x.put("1", "1");
         Assert.assertEquals("1", x.get("1"));
         Assert.assertNull(x.get("2"));
@@ -34,7 +34,7 @@ public class LruCacheTest extends AndroidTestCase {
         Assert.assertNull(x.get("2"));
         Assert.assertEquals("1", x.get("1"));
         Assert.assertEquals("3", x.get("3"));
-        x.delete("2");
+        x.remove("2");
         x.put("1", "1");
         Assert.assertEquals("1", x.get("1"));
         Assert.assertNull(x.get("2"));

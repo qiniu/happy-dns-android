@@ -30,9 +30,9 @@ public class LocalResolverTest extends AndroidTestCase {
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length >= 3);
 
-            for (Record r:records) {
-                Assert.assertTrue(r.value, r.ttl>=600);
-                Assert.assertTrue(r.value, r.isA()||r.isCname());
+            for (Record r : records) {
+                Assert.assertTrue(r.value, r.ttl >= 600);
+                Assert.assertTrue(r.value, r.isA() || r.isCname());
                 Assert.assertFalse(r.value, r.isExpired());
             }
         } catch (IOException e) {

@@ -19,10 +19,17 @@ public final class Resolver implements IResolver {
     private static final Random random = new Random();
 
     final InetAddress address;
+    private final int timeout;
 
     public Resolver(InetAddress address) {
-        this.address = address;
+        this(address, DNS_DEFAULT_TIMEOUT);
     }
+
+    public Resolver(InetAddress address, int timeout) {
+        this.address = address;
+        this.timeout = timeout;
+    }
+
 
     @Override
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
@@ -45,7 +52,7 @@ public final class Resolver implements IResolver {
             socket = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(question, question.length,
                     address, 53);
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(timeout*1000);
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);
             socket.receive(packet);

@@ -38,4 +38,14 @@ public class DnspodFreeTest extends AndroidTestCase {
             Assert.fail(e.getMessage());
         }
     }
+
+    public void testTimeout() throws IOException {
+        DnspodFree resolver = new DnspodFree("8.1.1.1", 5);
+        try {
+            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Assert.fail("no timeout");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

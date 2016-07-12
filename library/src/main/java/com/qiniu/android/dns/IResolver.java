@@ -8,6 +8,7 @@ import java.io.IOException;
  * 同步的域名查询接口，可以有local dns, httpdns 等实现
  */
 public interface IResolver {
+    int DNS_DEFAULT_TIMEOUT = 10; //seconds
     /**
      * 根据域名参数进行查询
      *

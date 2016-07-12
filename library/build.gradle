@@ -36,7 +36,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
 
-task releaseJar(type:Jar, dependsOn: 'build') {
+task releaseJar(type: Jar, dependsOn: 'build') {
     //指定生成的jar名
     baseName 'happy-dns-' + version
     //从哪里打包class文件
@@ -46,7 +46,7 @@ task releaseJar(type:Jar, dependsOn: 'build') {
     //去掉不需要打包的目录和文件
     exclude('test/', 'BuildConfig.class', 'R.class')
     //去掉R$开头的文件
-    exclude{ it.name.startsWith('R$');}
+    exclude { it.name.startsWith('R$'); }
 }
 
 android.libraryVariants.all { variant ->
@@ -54,7 +54,7 @@ android.libraryVariants.all { variant ->
     def task = project.tasks.create "jar${name.capitalize()}", Jar
     task.dependsOn variant.javaCompile
     task.from variant.javaCompile.destinationDir
-    task.exclude '**/R.*',  '**/R$*.*', '**/BuildConfig.class'
+    task.exclude '**/R.*', '**/R$*.*', '**/BuildConfig.class'
     artifacts.add('archives', task);
 }
 

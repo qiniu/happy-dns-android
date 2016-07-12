@@ -22,11 +22,17 @@ public final class DnspodEnterprise implements IResolver {
     private final String id;
     private final String ip;
     private final SecretKeySpec key;
+    private final int timeout;
 
     public DnspodEnterprise(String id, String key, String ip) {
+        this(id, key, ip, DNS_DEFAULT_TIMEOUT);
+    }
+
+    public DnspodEnterprise(String id, String key, String ip, int timeout) {
         this.id = id;
         this.ip = ip;
-        byte[] k = new byte[0];
+        this.timeout = timeout;
+        byte[] k;
         try {
             k = key.getBytes("utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -46,7 +52,7 @@ public final class DnspodEnterprise implements IResolver {
 
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setConnectTimeout(3000);
-        httpConn.setReadTimeout(6000);
+        httpConn.setReadTimeout(timeout*1000);
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             return null;

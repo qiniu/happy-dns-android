@@ -9,6 +9,7 @@ import junit.framework.Assert;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
@@ -76,4 +77,14 @@ public class LocalResolverTest extends AndroidTestCase {
 //    public void testDnspai() throws UnknownHostException {
 //        template("101.226.4.6");
 //    }
+
+    public void testTimeout() throws UnknownHostException {
+        Resolver resolver = new Resolver(InetAddress.getByName("8.1.1.1"), 5);
+        try {
+            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Assert.fail("no timeout");
+        } catch (IOException e) {
+            Assert.assertTrue(e instanceof SocketTimeoutException);
+        }
+    }
 }

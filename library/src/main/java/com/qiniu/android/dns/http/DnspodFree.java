@@ -15,9 +15,15 @@ import java.net.URL;
  */
 public final class DnspodFree implements IResolver {
     private final String ip;
+    private final int timeout;
 
     public DnspodFree(String ip) {
+        this(ip, DNS_DEFAULT_TIMEOUT);
+    }
+
+    public DnspodFree(String ip, int timeout) {
         this.ip = ip;
+        this.timeout = timeout;
     }
 
     public DnspodFree() {
@@ -26,10 +32,10 @@ public final class DnspodFree implements IResolver {
 
     @Override
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
-        URL url = new URL("http://119.29.29.29/d?ttl=1&dn=" + domain.domain);
+        URL url = new URL("http://" + ip + "/d?ttl=1&dn=" + domain.domain);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-        httpConn.setConnectTimeout(5000);
-        httpConn.setReadTimeout(10000);
+        httpConn.setConnectTimeout(3000);
+        httpConn.setReadTimeout(timeout*1000);
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             return null;

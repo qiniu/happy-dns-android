@@ -52,7 +52,7 @@ public final class Resolver implements IResolver {
             socket = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(question, question.length,
                     address, 53);
-            socket.setSoTimeout(timeout*1000);
+            socket.setSoTimeout(timeout * 1000);
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);
             socket.receive(packet);

@@ -9,6 +9,7 @@ import java.io.IOException;
  */
 public interface IResolver {
     int DNS_DEFAULT_TIMEOUT = 10; //seconds
+
     /**
      * 根据域名参数进行查询
      *

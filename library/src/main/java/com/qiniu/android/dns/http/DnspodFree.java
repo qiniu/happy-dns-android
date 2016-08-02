@@ -35,7 +35,7 @@ public final class DnspodFree implements IResolver {
         URL url = new URL("http://" + ip + "/d?ttl=1&dn=" + domain.domain);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setConnectTimeout(3000);
-        httpConn.setReadTimeout(timeout*1000);
+        httpConn.setReadTimeout(timeout * 1000);
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             return null;

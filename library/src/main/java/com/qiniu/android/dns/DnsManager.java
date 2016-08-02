@@ -182,6 +182,9 @@ public final class DnsManager {
             } catch (IOException e) {
                 lastE = e;
                 e.printStackTrace();
+            } catch (Exception e2) {
+                lastE = new IOException(e2);
+                e2.printStackTrace();
             }
             String ip2 = Network.getIp();
             if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {

@@ -52,7 +52,7 @@ public final class DnspodEnterprise implements IResolver {
 
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setConnectTimeout(3000);
-        httpConn.setReadTimeout(timeout*1000);
+        httpConn.setReadTimeout(timeout * 1000);
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             return null;

@@ -1,5 +1,10 @@
 #Changelog
 
+## 0.2.10 (2016-08-02)
+
+### 修正
+* http访问 系统底层可能抛出 SecurityException 或者 NPE，需要catch
+
 ## 0.2.9 (2016-07-06)
 
 ### 增加

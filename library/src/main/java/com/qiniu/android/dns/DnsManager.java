@@ -1,5 +1,7 @@
 package com.qiniu.android.dns;
 
+import android.os.Build;
+
 import com.qiniu.android.dns.http.DomainNotOwn;
 import com.qiniu.android.dns.local.Hosts;
 import com.qiniu.android.dns.util.LruCache;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -98,6 +101,19 @@ public final class DnsManager {
         }
     }
 
+    // 简单通过时区判断是否在大陆
+    public static boolean needHttpDns() {
+        try {
+            TimeZone zone = TimeZone.getDefault();
+            String id = zone.getID();
+            return ("Asia/Shanghai".equals(id) || "Asia/Chongqing".equals(id) ||
+                    "Asia/Harbin".equals(id) || "Asia/Urumqi".equals(id));
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * 查询域名
      *
@@ -183,7 +199,9 @@ public final class DnsManager {
                 lastE = e;
                 e.printStackTrace();
             } catch (Exception e2) {
-                lastE = new IOException(e2);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                    lastE = new IOException(e2);
+                }
                 e2.printStackTrace();
             }
             String ip2 = Network.getIp();

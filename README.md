@@ -18,7 +18,7 @@ DnsManager 可以创建一次，一直使用。
 ```java
     IResolver[] resolvers = new IResolver[2];
     resolvers[0] = AndroidDnsServer.defaultResolver();
-    resolvers[1] = new Resolver(InetAddress.getByName("114.114.115.115"));
+    resolvers[1] = new Resolver(InetAddress.getByName("119.29.29.29"));
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
 ```
 
@@ -49,7 +49,23 @@ Android 最低要求 2.3
 - 如果要提交代码，欢迎提交 pull request
 - 欢迎关注我们的[微信](http://www.qiniu.com/#weixin) [微博](http://weibo.com/qiniutek)，及时获取动态信息。
 
+## 常见问题
+- 如果软件有国外的使用情况时，建议初始化程序采取这样的方式，下面代码只是根据时区做简单判断，开发者可以根据自己需要使用更精确的判断方式
 
+```java
+DnsManager dns;
+if(DnsManager.needHttpDns()){
+	IResolver[] resolvers = new IResolver[2];
+    resolvers[0] = new DnspodFree();
+    resolvers[1] = AndroidDnsServer.defaultResolver();
+    dns = new DnsManager(NetworkInfo.normal, resolvers);
+}else{
+	IResolver[] resolvers = new IResolver[2];
+    resolvers[0] = AndroidDnsServer.defaultResolver();
+    resolvers[1] = new Resolver(InetAddress.getByName("8.8.8.8"));
+    dns = new DnsManager(NetworkInfo.normal, resolvers);
+}
+```
 ## 代码许可
 
 The MIT License (MIT).详情见 [License文件](https://github.com/qiniu/happy-dns-android/blob/master/LICENSE).

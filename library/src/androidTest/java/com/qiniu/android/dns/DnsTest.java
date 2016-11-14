@@ -10,6 +10,7 @@ import junit.framework.Assert;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.TimeZone;
 
 /**
  * Created by bailong on 15/6/21.
@@ -168,5 +169,14 @@ public class DnsTest extends AndroidTestCase {
         String[] ips = dns.query("1.1.1.1");
         assertEquals(ips.length, 1);
         assertEquals(ips[0], "1.1.1.1");
+    }
+
+    public void testNeedHttpdns() {
+        String id = TimeZone.getDefault().getID();
+        if (id.equals("Asia/Shanghai")) {
+            assertEquals(true, DnsManager.needHttpDns());
+        } else {
+            assertEquals(false, DnsManager.needHttpDns());
+        }
     }
 }

@@ -5,16 +5,17 @@ import com.qiniu.android.dns.NetworkInfo;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 /**
  * Created by bailong on 15/6/18.
  */
 public final class Hosts {
 
-    private final Hashtable<String, ArrayList<Value>> hosts = new Hashtable<>();
+    private final Hashtable<String, LinkedList<Value>> hosts = new Hashtable<>();
 
-    public String[] query(Domain domain, NetworkInfo info) {
-        ArrayList<Value> values = hosts.get(domain.domain);
+    public synchronized String[] query(Domain domain, NetworkInfo info) {
+        LinkedList<Value> values = hosts.get(domain.domain);
         if (values == null || values.isEmpty()) {
             return null;
         }
@@ -27,9 +28,9 @@ public final class Hosts {
         return toIps(values);
     }
 
-    private ArrayList<Value> filter(ArrayList<Value> origin, NetworkInfo info) {
-        ArrayList<Value> normal = new ArrayList<>();
-        ArrayList<Value> special = new ArrayList<>();
+    private synchronized LinkedList<Value> filter(LinkedList<Value> origin, NetworkInfo info) {
+        LinkedList<Value> normal = new LinkedList<>();
+        LinkedList<Value> special = new LinkedList<>();
         for (Value v : origin) {
             if (v.provider == NetworkInfo.ISP_GENERAL) {
                 normal.add(v);
@@ -45,7 +46,7 @@ public final class Hosts {
         return normal;
     }
 
-    public String[] toIps(ArrayList<Value> vals) {
+    public String[] toIps(LinkedList<Value> vals) {
         int size = vals.size();
 
         String[] r = new String[size];
@@ -57,9 +58,9 @@ public final class Hosts {
     }
 
     public Hosts put(String domain, Value val) {
-        ArrayList<Value> vals = hosts.get(domain);
+        LinkedList<Value> vals = hosts.get(domain);
         if (vals == null) {
-            vals = new ArrayList<>();
+            vals = new LinkedList<>();
         }
         vals.add(val);
         hosts.put(domain, vals);

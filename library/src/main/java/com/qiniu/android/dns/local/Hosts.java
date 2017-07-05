@@ -28,7 +28,7 @@ public final class Hosts {
         return toIps(values);
     }
 
-    private synchronized LinkedList<Value> filter(LinkedList<Value> origin, NetworkInfo info) {
+    private LinkedList<Value> filter(LinkedList<Value> origin, NetworkInfo info) {
         LinkedList<Value> normal = new LinkedList<>();
         LinkedList<Value> special = new LinkedList<>();
         for (Value v : origin) {
@@ -46,7 +46,7 @@ public final class Hosts {
         return normal;
     }
 
-    public String[] toIps(LinkedList<Value> vals) {
+    public synchronized String[] toIps(LinkedList<Value> vals) {
         int size = vals.size();
 
         String[] r = new String[size];
@@ -57,7 +57,7 @@ public final class Hosts {
         return r;
     }
 
-    public Hosts put(String domain, Value val) {
+    public synchronized Hosts put(String domain, Value val) {
         LinkedList<Value> vals = hosts.get(domain);
         if (vals == null) {
             vals = new LinkedList<>();

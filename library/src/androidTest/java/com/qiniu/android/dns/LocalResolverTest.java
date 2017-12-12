@@ -42,7 +42,7 @@ public class LocalResolverTest extends AndroidTestCase {
     }
 
     public void testLocal() {
-        template(AndroidDnsServer.defaultResolver());
+        template(AndroidDnsServer.defaultResolver(getContext()));
     }
 
     //    http://www.alidns.com/

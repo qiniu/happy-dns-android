@@ -18,7 +18,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class QiniuDns implements IResolver{
-    private static final String ENDPOINT = "https://httpdns.qnydns.net/";
+    private static final String ENDPOINT = "https://httpdns.qnydns.net:18302/";
 
     private static String mAccountId;
     private static String mEncryptKey;

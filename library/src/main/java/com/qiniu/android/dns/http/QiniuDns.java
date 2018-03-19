@@ -34,8 +34,10 @@ public class QiniuDns implements IResolver{
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         HttpsURLConnection connection = (HttpsURLConnection) new URL(ENDPOINT + mAccountId
                 + "/d?dn=" + (mEncryptKey == null ? domain.domain
-                    : DES.encrypt( domain.domain + "?e=" + Long.toString((System.currentTimeMillis() + mExpireTimeMs) / 1000), mEncryptKey))
-                + "&ttl=1").openConnection();
+                    : DES.encrypt( domain.domain
+                        + "?e=" + Long.toString((System.currentTimeMillis()
+                        + mExpireTimeMs) / 1000), mEncryptKey))
+                + "&ttl=1" + "&echo=1").openConnection();
         connection.setConnectTimeout(3000);
         connection.setReadTimeout(10000);
         if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
@@ -48,15 +50,17 @@ public class QiniuDns implements IResolver{
             sb.append(line);
         }
         try {
-            JSONObject response = new JSONArray(mEncryptKey == null ? sb.toString() : DES.decrypt(sb.toString(), mEncryptKey)).optJSONObject(0);
-            JSONArray result = response.optJSONArray("A");
+            JSONArray result = new JSONObject(mEncryptKey == null ? sb.toString()
+                    : DES.decrypt(sb.toString(), mEncryptKey))
+                    .optJSONArray("data").optJSONArray(0);
             if (result.length() <= 0) {
                 return null;
             }
-            int ttl = response.optInt("ttl");
             Record[] records = new Record[result.length()];
             for (int i = 0; i < records.length;++i) {
-                records[i] = new Record(result.getString(i), Record.TYPE_A, ttl, System.currentTimeMillis() / 1000);
+                JSONObject item = result.optJSONObject(i);
+                records[i] = new Record(item.optString("data"), Record.TYPE_A,
+                        item.optInt("TTL"), System.currentTimeMillis() / 1000);
             }
             return records;
         } catch (JSONException e) {

@@ -50,9 +50,10 @@ public class QiniuDns implements IResolver{
             sb.append(line);
         }
         try {
-            JSONArray result = new JSONObject(mEncryptKey == null ? sb.toString()
-                    : DES.decrypt(sb.toString(), mEncryptKey))
-                    .optJSONArray("data").optJSONArray(0);
+            JSONArray result = mEncryptKey == null ?
+                    new JSONObject(sb.toString()).optJSONArray("data").optJSONArray(0) :
+                    new JSONArray(DES.decrypt(new JSONObject(sb.toString()).optString("data"),
+                            mEncryptKey)).optJSONArray(0);
             if (result.length() <= 0) {
                 return null;
             }

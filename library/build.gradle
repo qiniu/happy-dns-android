@@ -29,11 +29,15 @@ android {
         versionCode code
         versionName version
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
 //    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 task releaseJar(type: Jar, dependsOn: 'build') {

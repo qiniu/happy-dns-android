@@ -18,8 +18,8 @@ before_install:
 jdk:
     - oraclejdk8
 script:
-   - "./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace"
-   - "./gradlew build"
+   - "./gradlew connectedAndroidTest --info --stacktrace"
+#   - "./gradlew build"
 before_cache:
     - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:

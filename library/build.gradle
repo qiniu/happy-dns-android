@@ -20,20 +20,24 @@ String version = versionName()
 int code = versionNameToCode(version)
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         //applicationId "com.qiniu.android.dns"
         minSdkVersion 9
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode code
         versionName version
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 
 dependencies {
 //    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 task releaseJar(type: Jar, dependsOn: 'build') {

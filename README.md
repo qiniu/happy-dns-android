@@ -16,11 +16,23 @@
 ## 使用方法
 DnsManager 可以创建一次，一直使用。
 ```java
-    IResolver[] resolvers = new IResolver[2];
-    resolvers[0] = AndroidDnsServer.defaultResolver();
-    resolvers[1] = new Resolver(InetAddress.getByName("119.29.29.29"));
+    IResolver[] resolvers = new IResolver[3];
+    resolvers[0] = AndroidDnsServer.defaultResolver(); //系统默认 DNS 服务器
+    resolvers[1] = new Resolver(InetAddress.getByName("119.29.29.29")); //自定义 DNS 服务器地址
+    resolvers[2] = new QiniuDns(accountId, encryptKey, expireTimeMs); //七牛 http dns 服务
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
 ```
+
+其中，七牛 http dns 服务所需的参数如下：
+
+| 参数             | 描述                                    |
+|------------------|-----------------------------------------|
+| accountId        |  账户名称，从七牛控制台获取             |
+| encryptKey       | 加密所需的 key，从七牛控制台获取        |
+| expireTimeSecond | Unix 时间戳，单位为秒，该时间后请求过期 |
+
+
+`QiniuDns` 提供了 `setHttps` 与 `setEncrypted` 两个方法，用于设置是否启用 SSL，与请求的 URL 是否加密。
 
 ## 测试
 

@@ -19,9 +19,9 @@ public class DnsTest extends AndroidTestCase {
     private boolean flag = false;
 
     public void testDns() throws IOException {
-        IResolver[] resolvers = new IResolver[2];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
-        resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
+        IResolver[] resolvers = new IResolver[1];
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
+      //  resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
         String[] ips = dns.query("www.qiniu.com");
         assertNotNull(ips);
@@ -30,7 +30,7 @@ public class DnsTest extends AndroidTestCase {
 
     public void testCnc() throws IOException {
         IResolver[] resolvers = new IResolver[2];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
         DnsManager dns = new DnsManager(new NetworkInfo(NetworkInfo.NetSatus.MOBILE, NetworkInfo.ISP_CNC), resolvers);
 
@@ -47,7 +47,7 @@ public class DnsTest extends AndroidTestCase {
 
     public void testTtl() throws IOException {
         IResolver[] resolvers = new IResolver[2];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         resolvers[1] = new HijackingDetectWrapper(
                 new Resolver(InetAddress.getByName("223.5.5.5")));
         DnsManager dns = new DnsManager(new NetworkInfo(
@@ -71,7 +71,7 @@ public class DnsTest extends AndroidTestCase {
 
     public void testCname() throws IOException {
         IResolver[] resolvers = new IResolver[2];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         resolvers[1] = new HijackingDetectWrapper(
                 new Resolver(InetAddress.getByName("114.114.115.115")));
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
@@ -132,7 +132,7 @@ public class DnsTest extends AndroidTestCase {
 
     public void testNull() {
         IResolver[] resolvers = new IResolver[1];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
         IOException e = null;
         try {
@@ -164,7 +164,7 @@ public class DnsTest extends AndroidTestCase {
 
     public void testIp() throws IOException {
         IResolver[] resolvers = new IResolver[1];
-        resolvers[0] = AndroidDnsServer.defaultResolver();
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
         String[] ips = dns.query("1.1.1.1");
         assertEquals(ips.length, 1);

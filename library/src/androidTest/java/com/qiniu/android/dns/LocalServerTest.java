@@ -8,6 +8,7 @@ import com.qiniu.android.dns.local.AndroidDnsServer;
 import junit.framework.Assert;
 
 import java.net.InetAddress;
+import java.util.List;
 
 /**
  * Created by bailong on 15/6/16.
@@ -15,21 +16,21 @@ import java.net.InetAddress;
 public class LocalServerTest extends AndroidTestCase {
     public void testCmd() {
         long t1 = System.currentTimeMillis();
-        InetAddress[] servers = AndroidDnsServer.getByCommand();
+        List<InetAddress> servers = AndroidDnsServer.getByCommand();
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
         Assert.assertNotNull(servers);
-        Assert.assertTrue(servers.length > 0);
-        Log.v("localtest", servers[0].getHostAddress());
+        Assert.assertTrue(servers.size() > 0);
+        Log.v("localtest", servers.get(0).getHostAddress());
     }
 
     public void testReflection() {
         long t1 = System.currentTimeMillis();
-        InetAddress[] servers = AndroidDnsServer.getByReflection();
+        List<InetAddress> servers = AndroidDnsServer.getByReflection();
         long t2 = System.currentTimeMillis();
         System.out.println(t2 - t1);
         Assert.assertNotNull(servers);
-        Assert.assertTrue(servers.length > 0);
-        Log.v("localtest", servers[0].getHostAddress());
+        Assert.assertTrue(servers.size() > 0);
+        Log.v("localtest", servers.get(0).getHostAddress());
     }
 }

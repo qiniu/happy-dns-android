@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,6 +26,8 @@ public final class DnsManager {
     private final IpSorter sorter;
     private volatile NetworkInfo info = null;
     private volatile int index = 0;
+
+    public QueryErrorHandler queryErrorHandler;
 
     /**
      * @param info      当前的网络信息，从Android context中获取
@@ -148,11 +151,46 @@ public final class DnsManager {
      * 查询域名
      *
      * @param domain 域名参数
+     * @return ip 记录 列表
+     * @throws IOException 网络异常或者无法解析抛出异常
+     * */
+    public Record[] queryRecords(String domain) throws IOException {
+        return queryRecords(new Domain(domain));
+    }
+
+    public Record[] queryRecords(Domain domain) throws IOException {
+        if (domain == null) {
+            throw new IOException("null domain");
+        }
+        if (domain.domain == null || domain.domain.trim().length() == 0) {
+            throw new IOException("empty domain " + domain.domain);
+        }
+
+        if (validIP(domain.domain)) {
+            Record record = new Record(domain.domain, Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
+            return new Record[]{record};
+        }
+
+        return queryRecordInternal(domain);
+    }
+
+    /**
+     * 查询域名
+     *
+     * @param domain 域名参数
      * @return ip 列表
      * @throws IOException 网络异常或者无法解析抛出异常
      */
-
     private String[] queryInternal(Domain domain) throws IOException {
+        Record[] records = queryRecordInternal(domain);
+        if (records == null || records.length == 0){
+            return null;
+        }
+        return records2Ip(records);
+    }
+
+    private Record[] queryRecordInternal(Domain domain) throws IOException {
+
 //        有些手机网络状态可能不对
 //        if (info.netStatus == NetworkInfo.NO_NETWORK){
 //            return null;
@@ -161,7 +199,11 @@ public final class DnsManager {
         if (domain.hostsFirst) {
             String[] ret = hosts.query(domain, info);
             if (ret != null && ret.length != 0) {
-                return ret;
+                records = new Record[ret.length];
+                for (int i=0; i<ret.length; i++){
+                    records[i] = new Record(ret[i], Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
+                }
+                return records;
             }
         }
         synchronized (cache) {
@@ -177,7 +219,7 @@ public final class DnsManager {
                         if (records.length > 1) {
                             rotate(records);
                         }
-                        return records2Ip(records);
+                        return records;
                     } else {
                         records = null;
                     }
@@ -198,11 +240,17 @@ public final class DnsManager {
             } catch (IOException e) {
                 lastE = e;
                 e.printStackTrace();
+                if (queryErrorHandler != null){
+                    queryErrorHandler.queryError(e, domain.domain);
+                }
             } catch (Exception e2) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                     lastE = new IOException(e2);
                 }
                 e2.printStackTrace();
+                if (queryErrorHandler != null){
+                    queryErrorHandler.queryError(e2, domain.domain);
+                }
             }
             String ip2 = Network.getIp();
             if (info == before && (records == null || records.length == 0) && ip.equals(ip2)) {
@@ -223,13 +271,21 @@ public final class DnsManager {
             if (!domain.hostsFirst) {
                 String[] rs = hosts.query(domain, info);
                 if (rs != null && rs.length != 0) {
-                    return rs;
+                    records = new Record[rs.length];
+                    for (int i=0; i<rs.length; i++){
+                        records[i] = new Record(rs[i], Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
+                    }
+                    return records;
                 }
             }
             if (lastE != null) {
                 throw lastE;
             }
-            throw new UnknownHostException(domain.domain);
+            IOException e = new UnknownHostException(domain.domain);
+            if (queryErrorHandler != null){
+                queryErrorHandler.queryError(e, domain.domain);
+            }
+            throw e;
         }
         records = trimCname(records);
         if (records.length == 0) {
@@ -238,7 +294,7 @@ public final class DnsManager {
         synchronized (cache) {
             cache.put(domain.domain, records);
         }
-        return records2Ip(records);
+        return records;
     }
 
     public InetAddress[] queryInetAdress(Domain domain) throws IOException {
@@ -301,5 +357,10 @@ public final class DnsManager {
         public String[] sort(String[] ips) {
             return ips;
         }
+    }
+
+
+    public interface QueryErrorHandler {
+        void queryError(Exception e, String host);
     }
 }

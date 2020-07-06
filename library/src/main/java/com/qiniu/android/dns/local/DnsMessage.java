@@ -216,6 +216,6 @@ public final class DnsMessage {
         if (payload == null) {
             throw new UnknownHostException("no record");
         }
-        return new Record(payload, type, (int) ttl, System.currentTimeMillis() / 1000);
+        return new Record(payload, type, (int) ttl, System.currentTimeMillis() / 1000, Record.Source.System);
     }
 }

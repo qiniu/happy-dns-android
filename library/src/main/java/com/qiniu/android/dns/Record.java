@@ -6,6 +6,10 @@ package com.qiniu.android.dns;
 public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
+    public enum Source {
+        Unknown, DnspodFree, DnspodEnterprise, System,
+    }
+
     /**
      * A 记录 类型
      */
@@ -36,11 +40,17 @@ public final class Record {
      */
     public final long timeStamp;
 
-    public Record(String value, int type, int ttl, long timeStamp) {
+    /**
+     * 记录来源 httpDns或者System
+     */
+    public final Source source;
+
+    public Record(String value, int type, int ttl, long timeStamp, Source source) {
         this.value = value;
         this.type = type;
         this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
         this.timeStamp = timeStamp;
+        this.source = source;
     }
 
     public boolean equals(Object o) {

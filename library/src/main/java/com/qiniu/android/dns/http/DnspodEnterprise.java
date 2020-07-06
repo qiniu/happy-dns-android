@@ -88,7 +88,7 @@ public final class DnspodEnterprise implements IResolver {
         Record[] records = new Record[ips.length];
         long time = System.currentTimeMillis() / 1000;
         for (int i = 0; i < ips.length; i++) {
-            records[i] = new Record(ips[i], Record.TYPE_A, ttl, time);
+            records[i] = new Record(ips[i], Record.TYPE_A, ttl, time, Record.Source.DnspodEnterprise);
         }
         return records;
     }

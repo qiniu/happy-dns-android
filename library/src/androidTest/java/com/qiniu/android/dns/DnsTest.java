@@ -28,6 +28,34 @@ public class DnsTest extends AndroidTestCase {
         assertTrue(ips.length > 0);
     }
 
+    public void testQueryDnsRecords() throws IOException {
+        IResolver[] resolvers = new IResolver[1];
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
+        //  resolvers[1] = new Resolver(InetAddress.getByName("223.5.5.5"));
+        DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
+        Record[] ips = dns.queryRecords("www.qiniu.com");
+        assertNotNull(ips);
+        assertTrue(ips.length > 0);
+    }
+
+    public void testQueryDnsErrorHandler() throws IOException {
+        IResolver[] resolvers = new IResolver[1];
+        resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
+        DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
+        dns.queryErrorHandler = new DnsManager.QueryErrorHandler() {
+            @Override
+            public void queryError(Exception e, String host) {
+                assertNotNull(e);
+            }
+        };
+        Record[] ips = null;
+        try {
+            ips = dns.queryRecords("www.qiniu1.com");
+        } catch (IOException e){
+        }
+        assertNull(ips);
+    }
+
     public void testCnc() throws IOException {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver(getContext());

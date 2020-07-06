@@ -1,4 +1,9 @@
 #Changelog
+## 0.2.16 (2020-07-06)
+
+### 增加
+* DnsManager增加queryRecords方法
+* Record增加source属性
 
 ## 0.2.14 (2018-04-03)
 

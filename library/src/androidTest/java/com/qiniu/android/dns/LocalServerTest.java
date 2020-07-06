@@ -21,7 +21,7 @@ public class LocalServerTest extends AndroidTestCase {
         System.out.println(t2 - t1);
 //        Assert.assertNotNull(servers);
 //        Assert.assertTrue(servers.size() > 0);
-        Log.v("localtest", servers.get(0).getHostAddress());
+//        Log.v("localtest", servers.get(0).getHostAddress());
     }
 
     public void testReflection() {
@@ -31,6 +31,6 @@ public class LocalServerTest extends AndroidTestCase {
         System.out.println(t2 - t1);
 //        Assert.assertNotNull(servers);
 //        Assert.assertTrue(servers.size() > 0);
-        Log.v("localtest", servers.get(0).getHostAddress());
+//        Log.v("localtest", servers.get(0).getHostAddress());
     }
 }

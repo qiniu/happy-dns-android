@@ -3,18 +3,20 @@ sudo: false
 language: android
 android:
   components:
-    - tools
-    - platform-tools
+#    - tools
+#    - platform-tools
     - build-tools-27.0.3
     - android-27
     - sys-img-armeabi-v7a-android-22
-    - add-on
-    - extra
+    - extra-android-support
+    - extra-android-m2repository
+#    - add-on
+#    - extra
 licenses:
     - 'android-sdk-license-.+'
 
-before_install:
-- yes | sdkmanager "platforms;android-27"
+#before_install:
+#- yes | sdkmanager "platforms;android-27"
 
 jdk:
     - oraclejdk8
@@ -28,10 +30,12 @@ before_script:
   - adb shell input keyevent 82 &
   
 script:
-   - "./gradlew connectedAndroidTest --info --stacktrace"
-#   - "./gradlew build"
+  - ./gradlew build
+  - "./gradlew connectedAndroidTest --info --stacktrace"
+  
 before_cache:
     - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+    
 cache:
   directories:
     - $HOME/.m2

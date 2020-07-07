@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class QiniuDns implements IResolver{
     private static final String ENDPOINT_SSL = "https://httpdns.qnydns.net:18443/";
@@ -79,7 +76,7 @@ public class QiniuDns implements IResolver{
             for (int i = 0; i < records.length;++i) {
                 JSONObject item = result.optJSONObject(i);
                 records[i] = new Record(item.optString("data"), Record.TYPE_A,
-                        item.optInt("TTL"), System.currentTimeMillis() / 1000);
+                        item.optInt("TTL"), System.currentTimeMillis() / 1000, Record.Source.DnspodFree);
             }
             return records;
         } catch (JSONException e) {

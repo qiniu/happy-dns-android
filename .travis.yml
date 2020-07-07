@@ -6,13 +6,12 @@ android:
 #    - tools
 #    - platform-tools
     - build-tools-29.0.2
-    - android-29
     - android-22
     - sys-img-armeabi-v7a-android-22
     - extra-android-support
     - extra-android-m2repository
-#    - add-on
-#    - extra
+    - add-on
+    - extra
 licenses:
     - 'android-sdk-license-.+'
 

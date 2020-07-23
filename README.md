@@ -7,6 +7,7 @@
 [![Latest Stable Version](http://img.shields.io/maven-central/v/com.qiniu/happy-dns.svg)](https://github.com/qiniu/happy-dns-android/releases)
 
 
+
 ## 安装
 
 ### 直接安装

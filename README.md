@@ -1,8 +1,10 @@
 # Qiniu Happy DNS for Android
 
 [![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
+[![LICENSE](https://img.shields.io/github/license/qiniu/happy-dns-android.svg)](https://github.com/qiniu/happy-dns-android/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/qiniu/happy-dns-android.svg?branch=master)](https://travis-ci.org/qiniu/happy-dns-android)
+[![GitHub release](https://img.shields.io/github/v/tag/qiniu/happy-dns-android.svg?label=release)](https://github.com/qiniu/happy-dns-android/releases)
+[![codecov](https://codecov.io/gh/qiniu/happy-dns-android/branch/master/graph/badge.svg)](https://codecov.io/gh/qiniu/happy-dns-android)
 [![Latest Stable Version](http://img.shields.io/maven-central/v/com.qiniu/happy-dns.svg)](https://github.com/qiniu/happy-dns-android/releases)
 
 

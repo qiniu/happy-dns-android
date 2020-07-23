@@ -29,15 +29,22 @@ android {
         versionCode code
         versionName version
     }
-
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
     lintOptions {
         abortOnError false
     }
 }
 
 dependencies {
-//    compile 'com.android.support:appcompat-v7:21.0.3'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.1'
 }
 
 task releaseJar(type: Jar, dependsOn: 'build') {

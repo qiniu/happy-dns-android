@@ -9,6 +9,9 @@ android:
     - android-27
     - add-on
     - extra
+    - sys-img-armeabi-v7a-android-22
+    - extra-android-support
+    - extra-android-m2repository
 licenses:
     - 'android-sdk-license-.+'
 
@@ -17,9 +20,16 @@ before_install:
 
 jdk:
     - oraclejdk8
+before_script:
+  - android list targets
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
 script:
-   - "./gradlew connectedAndroidTest --info --stacktrace"
-#   - "./gradlew build"
+  - ./gradlew build
+  - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
+  - ./gradlew connectedAndroidTest  --info
 before_cache:
     - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
@@ -27,3 +37,5 @@ cache:
     - $HOME/.m2
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

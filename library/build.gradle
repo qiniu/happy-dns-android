@@ -40,10 +40,11 @@ android {
 }
 
 dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.1'
 }
 
 task releaseJar(type: Jar, dependsOn: 'build') {

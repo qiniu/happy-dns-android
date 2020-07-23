@@ -29,7 +29,11 @@ android {
         versionCode code
         versionName version
     }
-
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
     lintOptions {
         abortOnError false
     }

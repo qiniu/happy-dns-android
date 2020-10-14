@@ -3,44 +3,40 @@ sudo: false
 language: android
 android:
   components:
-#    - tools
-#    - platform-tools
+    - tools
+    - platform-tools
     - build-tools-27.0.3
     - android-27
-    
-    - sys-img-x86-android-27
-    - sys-img-armeabi-v7a-android-22
-    
-    - extra-android-support
-    - extra-android-m2repository
+    - android-22
     - add-on
     - extra
+    - sys-img-armeabi-v7a-android-22
+    - extra-android-support
+    - extra-android-m2repository
 licenses:
     - 'android-sdk-license-.+'
 
-#before_install:
-#- yes | sdkmanager "platforms;android-27"
+before_install:
+  - yes | sdkmanager "platforms;android-27"
 
 jdk:
-    - oraclejdk8
-
-# Emulator Management: Create, Start and Wait
-before_script:
-  - android list targets
-  - echo no | android create avd --force -n test -t android-27 --abi x86
-  - emulator -avd test -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
-  
-script:
-  - ./gradlew build
-  - "./gradlew connectedAndroidTest --info --stacktrace"
-  
+  - oraclejdk8
 before_cache:
-    - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
-    
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
     - $HOME/.m2
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+before_script:
+  - android list targets
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+script:
+  - ./gradlew build
+  - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
+  - ./gradlew connectedAndroidTest  --info
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

@@ -19,7 +19,7 @@
 DnsManager 可以创建一次，一直使用。
 ```java
     IResolver[] resolvers = new IResolver[3];
-    resolvers[0] = AndroidDnsServer.defaultResolver(); //系统默认 DNS 服务器
+    resolvers[0] = AndroidDnsServer.defaultResolver(getContext()); //系统默认 DNS 服务器
     resolvers[1] = new Resolver(InetAddress.getByName("119.29.29.29")); //自定义 DNS 服务器地址
     resolvers[2] = new QiniuDns(accountId, encryptKey, expireTimeMs); //七牛 http dns 服务
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
@@ -71,11 +71,11 @@ DnsManager dns;
 if(DnsManager.needHttpDns()){
 	IResolver[] resolvers = new IResolver[2];
     resolvers[0] = new DnspodFree();
-    resolvers[1] = AndroidDnsServer.defaultResolver();
+    resolvers[1] = AndroidDnsServer.defaultResolver(getContext());
     dns = new DnsManager(NetworkInfo.normal, resolvers);
 }else{
 	IResolver[] resolvers = new IResolver[2];
-    resolvers[0] = AndroidDnsServer.defaultResolver();
+    resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
     resolvers[1] = new Resolver(InetAddress.getByName("8.8.8.8"));
     dns = new DnsManager(NetworkInfo.normal, resolvers);
 }

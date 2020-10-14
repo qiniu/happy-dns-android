@@ -1,6 +1,11 @@
 #Changelog
 ## 0.2.16 (2020-07-06)
 
+### 修改
+* 处理getByCommand偶现异常问题
+
+## 0.2.16 (2020-07-06)
+
 ### 增加
 * DnsManager增加queryRecords方法
 * Record增加source属性

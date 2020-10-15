@@ -131,7 +131,7 @@ public final class AndroidDnsServer {
             ArrayList<InetAddress> servers = new ArrayList<InetAddress>(5);
             while ((line = lnr.readLine()) != null) {
                 int split = line.indexOf("]: [");
-                if (split == -1) {
+                if (split <= 1 || line.length() - 1 <= split + 4) {
                     continue;
                 }
                 String property = line.substring(1, split);

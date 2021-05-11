@@ -1,4 +1,9 @@
 #Changelog
+## 0.2.18 (2021-05-11)
+
+### 修改
+* 处理 connectivityManager.registerNetworkCallback 可能出现的异常
+
 ## 0.2.17 (2020-10-14)
 
 ### 修改

@@ -51,20 +51,25 @@ public final class AndroidDnsServer {
                             (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
                     NetworkRequest.Builder builder = new NetworkRequest.Builder();
+                    if (connectivityManager != null) {
+                        try {
+                            connectivityManager.registerNetworkCallback(builder.build(),
+                                    new ConnectivityManager.NetworkCallback() {
 
-                    connectivityManager.registerNetworkCallback(builder.build(),
-                            new ConnectivityManager.NetworkCallback(){
+                                        @Override
+                                        public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
 
-                                @Override
-                                public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
+                                            if (linkProperties != null)
+                                                dnsServers.addAll(linkProperties.getDnsServers());
 
-                                    if(linkProperties != null)
-                                        dnsServers.addAll(linkProperties.getDnsServers());
+                                            networkCallback = true;
+                                        }
 
-                                    networkCallback = true;
-                                }
-
-                            });
+                                    });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
             else {

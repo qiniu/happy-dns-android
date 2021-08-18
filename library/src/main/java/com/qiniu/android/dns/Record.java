@@ -7,7 +7,7 @@ public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
     public enum Source {
-        Unknown, DnspodFree, DnspodEnterprise, System,
+        Unknown, DnspodFree, DnspodEnterprise, System, Udp, Doh,
     }
 
     /**
@@ -16,9 +16,19 @@ public final class Record {
     public static final int TYPE_A = 1;
 
     /**
+     * AAAA 记录 类型
+     */
+    public static final int TYPE_AAAA = 28;
+
+    /**
      * CName 类型
      */
     public static final int TYPE_CNAME = 5;
+
+    /**
+     * TXT 记录 类型
+     */
+    public static final int TYPE_TXT = 16;
 
     /**
      * 具体的值，A 记录时为IP，CName时为指向的域名
@@ -45,12 +55,24 @@ public final class Record {
      */
     public final Source source;
 
+    public final String server;
+
     public Record(String value, int type, int ttl, long timeStamp, Source source) {
         this.value = value;
         this.type = type;
         this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
         this.timeStamp = timeStamp;
         this.source = source;
+        this.server = null;
+    }
+
+    public Record(String value, int type, int ttl, long timeStamp, Source source, String server) {
+        this.value = value;
+        this.type = type;
+        this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
+        this.timeStamp = timeStamp;
+        this.source = source;
+        this.server = server;
     }
 
     public boolean equals(Object o) {

@@ -1,5 +1,7 @@
 package com.qiniu.android.dns;
 
+import java.util.Locale;
+
 /**
  * Created by bailong on 15/6/12.
  */
@@ -46,7 +48,7 @@ public final class Record {
     public final int ttl;
 
     /**
-     * 时间戳，用来判断超时
+     * 时间戳，用来判断超时，单位：秒
      */
     public final long timeStamp;
 
@@ -103,5 +105,10 @@ public final class Record {
 
     public boolean isExpired(long time) {
         return timeStamp + ttl < time;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.getDefault(),"type:%s value:%s source:%s server:%s timestamp:%d ttl:%d", type, value, source, server, timeStamp, ttl);
     }
 }

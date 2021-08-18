@@ -10,21 +10,15 @@ import junit.framework.Assert;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-public class DohTest extends AndroidTestCase {
-
+public class UdpResolverTest extends AndroidTestCase {
     public void testSimpleDns() {
         String host = "qiniu.com";
-        String server = "https://dns.alidns.com/dns-query";
+        String server = "114.114.114.114";
         int[] typeArray = new int[]{Record.TYPE_A, Record.TYPE_CNAME, Record.TYPE_AAAA, Record.TYPE_TXT};
 
         for (int type : typeArray) {
-            DohResolver resolver = new DohResolver(server, type, 5);
+            DnsUdpResolver resolver = new DnsUdpResolver(server, type, 5);
             try {
                 DnsResponse response = resolver.lookupHost(host);
                 System.out.println("=== response:" + response);
@@ -36,7 +30,7 @@ public class DohTest extends AndroidTestCase {
         }
 
 
-        DohResolver resolver = new DohResolver(server);
+        DnsUdpResolver resolver = new DnsUdpResolver(server);
         try {
             Record[] records = resolver.resolve(new Domain(host), NetworkInfo.normal);
             System.out.println("=== records:" + Arrays.toString(records));
@@ -49,11 +43,11 @@ public class DohTest extends AndroidTestCase {
 
     public void testMultiDnsServer() {
         String host = "qiniu.com";
-        String[] servers = new String[]{"https://dns.alidns.com/dns-query", "8.8.8.8"};
+        String[] servers = new String[]{"114.114.114.114", "8.8.8.8"};
         int[] typeArray = new int[]{Record.TYPE_A, Record.TYPE_CNAME, Record.TYPE_AAAA, Record.TYPE_TXT};
 
         for (int type : typeArray) {
-            DohResolver resolver = new DohResolver(servers, type, 5);
+            DnsUdpResolver resolver = new DnsUdpResolver(servers, type, 5);
             try {
                 DnsResponse response = resolver.lookupHost(host);
                 System.out.println("=== response:" + response);
@@ -65,7 +59,7 @@ public class DohTest extends AndroidTestCase {
         }
 
 
-        DohResolver resolver = new DohResolver(servers, Record.TYPE_A, 5);
+        DnsUdpResolver resolver = new DnsUdpResolver(servers, Record.TYPE_A, 5);
         try {
             Record[] records = resolver.resolve(new Domain(host), NetworkInfo.normal);
             System.out.println("=== records:" + Arrays.toString(records));

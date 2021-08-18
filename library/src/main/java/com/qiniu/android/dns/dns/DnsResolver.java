@@ -8,9 +8,15 @@ import com.qiniu.android.dns.Record;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public abstract class DnsResolver implements IResolver {
+
+    private static ScheduledExecutorService timeoutExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     private final int recordType;
     private final String[] servers;
@@ -27,7 +33,7 @@ public abstract class DnsResolver implements IResolver {
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout) {
-        this(servers, recordType, timeout, null);
+        this(servers, recordType, timeout, (servers != null && servers.length > 0) ? Executors.newFixedThreadPool(servers.length) : null);
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout, ExecutorService executorService) {
@@ -55,7 +61,7 @@ public abstract class DnsResolver implements IResolver {
                 records.add(record);
             }
         }
-        return (Record[]) records.toArray();
+        return records.toArray(new Record[0]);
     }
 
     public DnsResponse lookupHost(String host) throws IOException {
@@ -85,6 +91,17 @@ public abstract class DnsResolver implements IResolver {
             final int[] completedCount = {0};
             final Object waiter = new Object();
 
+            // 超时处理
+            timeoutExecutorService.schedule(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    synchronized (waiter) {
+                        waiter.notify();
+                    }
+                    return null;
+                }
+            }, timeout, TimeUnit.SECONDS);
+
             // 返回一个即结束
             for (final String server : servers) {
                 final String serverP = server;
@@ -113,8 +130,8 @@ public abstract class DnsResolver implements IResolver {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                return response[0];
             }
+            return response[0];
         }
 
     }

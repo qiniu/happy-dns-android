@@ -33,7 +33,7 @@ public class DnsResponse extends DnsMessage {
         this.source = source;
         this.request = request;
         this.recordData = recordData;
-        this.timestamp = new Date().getTime();
+        this.timestamp = new Date().getTime() / 1000;
         this.parse();
     }
 
@@ -209,7 +209,7 @@ public class DnsResponse extends DnsMessage {
                 }
             }
             break;
-            case Record.TYPE_CNAME:{
+            case Record.TYPE_CNAME: {
                 if (length > 1) {
                     RecordName name = getNameFrom(from);
                     dataString = name.name;

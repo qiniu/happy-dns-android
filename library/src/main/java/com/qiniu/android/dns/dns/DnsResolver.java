@@ -61,7 +61,7 @@ public abstract class DnsResolver implements IResolver {
 
         List<Record> records = new ArrayList<>();
         for (Record record : answers) {
-            if (record.type == Record.TYPE_A || record.type == Record.TYPE_AAAA) {
+            if (record.isA() || record.isCname() || record.isAAAA()) {
                 records.add(record);
             }
         }

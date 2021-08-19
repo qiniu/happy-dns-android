@@ -99,6 +99,10 @@ public final class Record {
         return type == TYPE_A;
     }
 
+    public boolean isAAAA() {
+        return type == TYPE_AAAA;
+    }
+
     public boolean isCname() {
         return type == TYPE_CNAME;
     }

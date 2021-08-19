@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 
 public class DnsUdpResolver extends DnsResolver {
+    private static final int DnsUdpPort = 53;
 
     public DnsUdpResolver(String serverIP) {
         super(serverIP);
@@ -42,7 +43,7 @@ public class DnsUdpResolver extends DnsResolver {
         try {
             socket = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(requestData, requestData.length,
-                    address, 53);
+                    address, DnsUdpPort);
             socket.setSoTimeout(timeout * 1000);
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);

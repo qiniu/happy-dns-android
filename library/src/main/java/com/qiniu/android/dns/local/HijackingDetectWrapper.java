@@ -4,6 +4,7 @@ import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
+import com.qiniu.android.dns.dns.DnsUdpResolver;
 
 import java.io.IOException;
 
@@ -11,9 +12,9 @@ import java.io.IOException;
  * Created by bailong on 15/7/10.
  */
 public final class HijackingDetectWrapper implements IResolver {
-    private final Resolver resolver;
+    private final DnsUdpResolver resolver;
 
-    public HijackingDetectWrapper(Resolver r) {
+    public HijackingDetectWrapper(DnsUdpResolver r) {
         this.resolver = r;
     }
 
@@ -22,23 +23,23 @@ public final class HijackingDetectWrapper implements IResolver {
         Record[] records = resolver.resolve(domain, info);
         if (domain.hasCname) {
             boolean cname = false;
+            String server = null;
             for (Record r : records) {
                 if (r.isCname()) {
                     cname = true;
+                    server = r.server;
                     break;
                 }
             }
             if (!cname) {
-                throw new DnshijackingException(domain.domain,
-                        resolver.address.getHostAddress());
+                throw new DnshijackingException(domain.domain, server);
             }
         }
         if (domain.maxTtl != 0) {
             for (Record r : records) {
                 if (!r.isCname()) {
                     if (r.ttl > domain.maxTtl) {
-                        throw new DnshijackingException(domain.domain,
-                                resolver.address.getHostAddress(), r.ttl);
+                        throw new DnshijackingException(domain.domain, r.server, r.ttl);
                     }
                 }
             }

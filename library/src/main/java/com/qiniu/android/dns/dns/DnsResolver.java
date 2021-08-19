@@ -28,6 +28,10 @@ public abstract class DnsResolver implements IResolver {
         this(server, Record.TYPE_A, DNS_DEFAULT_TIMEOUT);
     }
 
+    public DnsResolver(String server, int timeout) {
+        this(server, Record.TYPE_A, timeout);
+    }
+
     public DnsResolver(String server, int recordType, int timeout) {
         this(server == null ? null : new String[]{server}, recordType, timeout, null);
     }

@@ -14,6 +14,10 @@ public class DnsUdpResolver extends DnsResolver {
         super(serverIP);
     }
 
+    public DnsUdpResolver(String server, int timeout) {
+        super(server, timeout);
+    }
+
     public DnsUdpResolver(String serverIP, int recordType, int timeout) {
         super(serverIP, recordType, timeout);
     }

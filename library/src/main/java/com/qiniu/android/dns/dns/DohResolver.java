@@ -1,7 +1,6 @@
 package com.qiniu.android.dns.dns;
 
 import com.qiniu.android.dns.Record;
-import com.qiniu.android.dns.local.DnsMessage;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -16,6 +15,10 @@ public class DohResolver extends DnsResolver {
 
     public DohResolver(String server) {
         super(server);
+    }
+
+    public DohResolver(String server, int timeout) {
+        super(server, timeout);
     }
 
     public DohResolver(String server, int recordType, int timeout) {

@@ -2,8 +2,8 @@ package com.qiniu.android.dns;
 
 import android.test.AndroidTestCase;
 
+import com.qiniu.android.dns.dns.DnsUdpResolver;
 import com.qiniu.android.dns.local.AndroidDnsServer;
-import com.qiniu.android.dns.local.Resolver;
 
 import junit.framework.Assert;
 
@@ -18,7 +18,7 @@ import java.net.UnknownHostException;
 public class LocalResolverTest extends AndroidTestCase {
 
     private void template(String ip) throws UnknownHostException {
-        Resolver resolver = new Resolver(InetAddress.getByName(ip));
+        DnsUdpResolver resolver = new DnsUdpResolver(ip);
         template(resolver);
     }
 
@@ -79,7 +79,7 @@ public class LocalResolverTest extends AndroidTestCase {
 //    }
 
     public void testTimeout() throws UnknownHostException {
-        Resolver resolver = new Resolver(InetAddress.getByName("8.1.1.1"), 5);
+        DnsUdpResolver resolver = new DnsUdpResolver("8.1.1.1", 5);
         try {
             Record[] records = resolver.resolve(new Domain("baidu.com"), null);
             Assert.fail("no timeout");

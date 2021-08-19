@@ -6,10 +6,10 @@ public class DnsMessage {
     public static final int OpCodeStatus = 2;
     public static final int OpCodeUpdate = 5;
 
-    short messageId = 0;
-    int opCode = OpCodeQuery;
-    int rd = 1;
-    int ra = 0;
+    protected short messageId = 0;
+    protected int opCode = OpCodeQuery;
+    protected int rd = 1;
+    protected int ra = 0;
 
     /**
      * 16位的消息ID标示一次正常的交互，该ID由消息请求者设置，消息响应者回复请求时带上该ID。最大：0xFFFF，即：65536

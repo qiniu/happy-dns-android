@@ -2,7 +2,6 @@ package com.qiniu.android.dns.dns;
 
 import com.qiniu.android.dns.Record;
 
-
 import java.io.IOException;
 import java.net.IDN;
 import java.util.ArrayList;

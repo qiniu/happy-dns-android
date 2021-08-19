@@ -38,6 +38,7 @@ public class DohResolver extends DnsResolver {
         double d = Math.random();
         short messageId = (short) (d * 0xFFFF);
         DnsRequest request = new DnsRequest(messageId, recordType, host);
+        byte[] requestData = request.toDnsQuestionData();
 
         HttpsURLConnection httpConn = (HttpsURLConnection) new URL(server).openConnection();
         httpConn.setConnectTimeout(3000);
@@ -49,7 +50,7 @@ public class DohResolver extends DnsResolver {
         httpConn.setRequestProperty( "Accept-Encoding", "");
 
         DataOutputStream bodyStream = new DataOutputStream(httpConn.getOutputStream());
-        bodyStream.write(request.toDnsQuestionData());
+        bodyStream.write(requestData);
         bodyStream.close();
 
         int responseCode = httpConn.getResponseCode();

@@ -7,20 +7,27 @@
 [![codecov](https://codecov.io/gh/qiniu/happy-dns-android/branch/master/graph/badge.svg)](https://codecov.io/gh/qiniu/happy-dns-android)
 [![Latest Stable Version](http://img.shields.io/maven-central/v/com.qiniu/happy-dns.svg)](https://github.com/qiniu/happy-dns-android/releases)
 
+## 用途
+可以使用114 等第三方dns解析，也可以使用 Doh 协议的 Dns 解析方案，也可以集成 dnspod 等httpdns。另外也有丰富的hosts 域名配置。
 
 ## 安装
 
 ### 直接安装
-
+将sdk jar文件 复制到项目中去，[jar包下载地址](https://search.maven.org/search?q=com%2Fqiniu%2Fqiniu-android-sdk) 下载对应的jar包
 
 ### 通过maven
+* Android Studio中添加dependencies 或者 在项目中添加maven依赖
+```
+implementation 'com.qiniu:happy-dns:1.0.0'
+```
+
 
 ## 使用方法
 DnsManager 可以创建一次，一直使用。
 ```java
     IResolver[] resolvers = new IResolver[3];
     resolvers[0] = AndroidDnsServer.defaultResolver(getContext()); //系统默认 DNS 服务器
-    resolvers[1] = new DnsUdpResolver("119.29.29.29"); //自定义 DNS 服务器地址
+    resolvers[1] = new DnsUdpResolver("8.8.8.8"); //自定义 DNS 服务器地址
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
 ```
 

@@ -24,17 +24,6 @@ DnsManager 可以创建一次，一直使用。
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
 ```
 
-其中，七牛 http dns 服务所需的参数如下：
-
-| 参数             | 描述                                    |
-|------------------|-----------------------------------------|
-| accountId        |  账户名称，从七牛控制台获取             |
-| encryptKey       | 加密所需的 key，从七牛控制台获取        |
-| expireTimeSecond | Unix 时间戳，单位为秒，该时间后请求过期 |
-
-
-`QiniuDns` 提供了 `setHttps` 与 `setEncrypted` 两个方法，用于设置是否启用 SSL，与请求的 URL 是否加密。
-
 ## 测试
 
 ``` bash
@@ -69,7 +58,8 @@ Android 最低要求 2.3
 DnsManager dns;
 if(DnsManager.needHttpDns()){
 	IResolver[] resolvers = new IResolver[2];
-    resolvers[0] = new DnspodFree();
+    // dohResolver 需要配置一个支持 Doh(Dns over http) 协议的 url
+    resolvers[0] = new DnhResolver("https://dns.alidns.com/dns-query");
     resolvers[1] = AndroidDnsServer.defaultResolver(getContext());
     dns = new DnsManager(NetworkInfo.normal, resolvers);
 }else{

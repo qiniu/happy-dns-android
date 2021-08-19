@@ -9,7 +9,6 @@ import com.qiniu.android.dns.local.HijackingDetectWrapper;
 import junit.framework.Assert;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.TimeZone;
 
 /**

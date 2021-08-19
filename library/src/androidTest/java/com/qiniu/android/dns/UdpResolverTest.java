@@ -4,7 +4,6 @@ import android.test.AndroidTestCase;
 
 import com.qiniu.android.dns.dns.DnsResponse;
 import com.qiniu.android.dns.dns.DnsUdpResolver;
-import com.qiniu.android.dns.dns.DohResolver;
 
 import junit.framework.Assert;
 

@@ -8,7 +8,6 @@ import com.qiniu.android.dns.local.AndroidDnsServer;
 import junit.framework.Assert;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 

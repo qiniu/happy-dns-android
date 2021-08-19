@@ -9,7 +9,7 @@ public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
     public enum Source {
-        Unknown, DnspodFree, DnspodEnterprise, System, Udp, Doh,
+        Unknown, DnspodEnterprise, System, Udp, Doh,
     }
 
     /**

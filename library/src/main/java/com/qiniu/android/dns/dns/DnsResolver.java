@@ -68,7 +68,7 @@ public abstract class DnsResolver implements IResolver {
         return records.toArray(new Record[0]);
     }
 
-    public DnsResponse lookupHost(String host) throws IOException {
+    private DnsResponse lookupHost(String host) throws IOException {
         return request(host, recordType);
     }
 

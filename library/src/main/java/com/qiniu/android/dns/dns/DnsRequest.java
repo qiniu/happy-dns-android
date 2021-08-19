@@ -7,24 +7,24 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.IDN;
 
-public class DnsRequest extends DnsMessage {
+class DnsRequest extends DnsMessage {
 
     final private int recordType;
     final private String host;
 
-    public int getRecordType() {
+    int getRecordType() {
         return recordType;
     }
 
-    public String getHost() {
+    String getHost() {
         return host;
     }
 
-    public DnsRequest(short messageId, int recordType, String host) {
+    DnsRequest(short messageId, int recordType, String host) {
         this(messageId, 0, 1, recordType, host);
     }
 
-    public DnsRequest(short messageId, int opCode, int rd, int recordType, String host) {
+    DnsRequest(short messageId, int opCode, int rd, int recordType, String host) {
         this.messageId = messageId;
         this.opCode = opCode;
         this.rd = rd;
@@ -32,7 +32,7 @@ public class DnsRequest extends DnsMessage {
         this.host = host;
     }
 
-    public byte[] toDnsQuestionData() throws IOException {
+    byte[] toDnsQuestionData() throws IOException {
         if (host == null || host.length() == 0) {
             throw new IOException("host can not empty");
         }

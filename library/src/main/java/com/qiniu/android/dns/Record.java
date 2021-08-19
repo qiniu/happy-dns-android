@@ -8,8 +8,11 @@ import java.util.Locale;
 public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
-    public enum Source {
-        Unknown, DnspodEnterprise, System, Udp, Doh,
+    public static class Source {
+        public static final int Unknown = 0;
+        public static final int DnspodEnterprise = 1;
+        public static final int Udp = 2;
+        public static final int Doh = 3;
     }
 
     /**
@@ -53,22 +56,23 @@ public final class Record {
     public final long timeStamp;
 
     /**
-     * 记录来源 httpDns或者System
+     * 记录来源， httpDns 或者 System
+     * {@link Source}
      */
-    public final Source source;
+    public final int source;
 
     public final String server;
 
-    public Record(String value, int type, int ttl, long timeStamp, Source source) {
+    public Record(String value, int type, int ttl, long timeStamp, int source) {
         this.value = value;
         this.type = type;
-        this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
+        this.ttl = Math.max(ttl, TTL_MIN_SECONDS);
         this.timeStamp = timeStamp;
         this.source = source;
         this.server = null;
     }
 
-    public Record(String value, int type, int ttl, long timeStamp, Source source, String server) {
+    public Record(String value, int type, int ttl, long timeStamp, int source, String server) {
         this.value = value;
         this.type = type;
         this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
@@ -109,6 +113,6 @@ public final class Record {
 
     @Override
     public String toString() {
-        return String.format(Locale.getDefault(),"type:%s value:%s source:%s server:%s timestamp:%d ttl:%d", type, value, source, server, timeStamp, ttl);
+        return String.format(Locale.getDefault(),"{type:%s, value:%s, source:%s, server:%s, timestamp:%d, ttl:%d}", type, value, source, server, timeStamp, ttl);
     }
 }

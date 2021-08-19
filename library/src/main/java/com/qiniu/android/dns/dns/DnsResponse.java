@@ -9,11 +9,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-public class DnsResponse extends DnsMessage {
+class DnsResponse extends DnsMessage {
 
     private long timestamp;
-    private Record.Source source;
+    private int source;
     private String server;
     private DnsRequest request;
     private byte[] recordData;
@@ -24,7 +23,7 @@ public class DnsResponse extends DnsMessage {
     private List<Record> authorityArray;
     private List<Record> additionalArray;
 
-    public DnsResponse(String server, Record.Source source, DnsRequest request, byte[] recordData) throws IOException {
+    DnsResponse(String server, int source, DnsRequest request, byte[] recordData) throws IOException {
         if (recordData == null || recordData.length == 0) {
             throw new IOException("response data is empty");
         }
@@ -230,7 +229,6 @@ public class DnsResponse extends DnsMessage {
         return dataString;
     }
 
-
     private int readRecordDataInt8(int from) throws IOException {
         if (from >= recordData.length) {
             throw new IOException("read response data out of range");
@@ -259,23 +257,23 @@ public class DnsResponse extends DnsMessage {
     }
 
 
-    public int getAA() {
+    int getAA() {
         return aa;
     }
 
-    public int getRCode() {
+    int getRCode() {
         return rCode;
     }
 
-    public List<Record> getAnswerArray() {
+    List<Record> getAnswerArray() {
         return answerArray;
     }
 
-    public List<Record> getAdditionalArray() {
+    List<Record> getAdditionalArray() {
         return additionalArray;
     }
 
-    public List<Record> getAuthorityArray() {
+    List<Record> getAuthorityArray() {
         return authorityArray;
     }
 

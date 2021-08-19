@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DnsResponse extends DnsMessage {
 
@@ -242,16 +243,20 @@ public class DnsResponse extends DnsMessage {
         if ((from + 1) >= recordData.length) {
             throw new IOException("read response data out of range");
         }
-        int a = (recordData[from] & 0xFF) << 8;
-        int b = recordData[from + 1] & 0xFF;
-        return (short) (a + b);
+        int b0 = (recordData[from] & 0xFF) << 8;
+        int b1 = recordData[from + 1] & 0xFF;
+        return (short) (b0 + b1);
     }
 
     private int readRecordDataInt32(int from) throws IOException {
         if ((from + 3) >= recordData.length) {
             throw new IOException("read response data out of range");
         }
-        return ((recordData[from] & 0xFF) << 32) + ((recordData[from + 1] & 0xFF) << 24) + ((recordData[from + 2] & 0xFF) << 16) + ((recordData[from + 3] & 0xFF) << 8);
+        int b0 = (recordData[from] & 0xFF) << 24;
+        int b1 = (recordData[from + 1] & 0xFF) << 16;
+        int b2 = (recordData[from + 2] & 0xFF) << 8;
+        int b3 = (recordData[from + 3] & 0xFF);
+        return b0 + b1 + b2 + b3;
     }
 
 
@@ -273,6 +278,13 @@ public class DnsResponse extends DnsMessage {
 
     public List<Record> getAuthorityArray() {
         return authorityArray;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.getDefault(),"{messageId:%d, rd:%d, ra:%d, aa:%d, rCode:%d, server:%s, request:%s, answerArray:%s, authorityArray:%s, additionalArray:%s}",
+                messageId, rd, ra, aa, rCode, server, request, answerArray, authorityArray, additionalArray);
+
     }
 
     private static class RecordResource {

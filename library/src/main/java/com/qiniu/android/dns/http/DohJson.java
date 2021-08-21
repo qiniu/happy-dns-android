@@ -63,13 +63,9 @@ public final class DohJson implements IResolver {
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         List<Record> records = new ArrayList<>();
         if (useIpv6) {
-            List<Record> ipv6=lookup(domain.domain, true);
-            if(ipv6!=null&&ipv6.size()>0){
-                records.addAll(ipv6);
-            }
+            records.addAll(lookup(domain.domain, true));
 
         }
-        List<Record> ipv4=lookup(domain.domain, true);
         records.addAll(lookup(domain.domain, false));
         if (records.size() == 0) {
             return null;

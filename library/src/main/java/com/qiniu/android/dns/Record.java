@@ -6,14 +6,19 @@ package com.qiniu.android.dns;
 public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
+
     public enum Source {
-        Unknown, DnspodFree, DnspodEnterprise, System, DohJson,DohDns,
+        Unknown, DnspodFree, DnspodEnterprise, System, DohJson, DohDns,
     }
 
     /**
      * A 记录 类型
      */
     public static final int TYPE_A = 1;
+    /**
+     * AAAA 记录 类型
+     */
+    public static final int TYPE_AAAA = 28;
 
     /**
      * CName 类型

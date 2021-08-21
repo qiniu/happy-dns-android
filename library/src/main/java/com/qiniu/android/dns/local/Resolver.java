@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -20,30 +23,53 @@ public final class Resolver implements IResolver {
 
     final InetAddress address;
     private final int timeout;
+    private boolean useIpv6;
 
     public Resolver(InetAddress address) {
-        this(address, DNS_DEFAULT_TIMEOUT);
+        this(address, DNS_DEFAULT_TIMEOUT, false);
     }
 
     public Resolver(InetAddress address, int timeout) {
+        this(address, timeout, false);
+    }
+
+    public Resolver(InetAddress address, int timeout, boolean useIpv6) {
         this.address = address;
         this.timeout = timeout;
+        this.useIpv6 = useIpv6;
+    }
+
+    public Resolver setUseIpv6(boolean useIpv6) {
+        this.useIpv6 = useIpv6;
+        return this;
     }
 
 
     @Override
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
+        List<Record> records = new ArrayList<>();
+        if (useIpv6) {
+            records.addAll(lookup(domain, true));
+        }
+        records.addAll(lookup(domain, false));
+        return records.toArray(new Record[0]);
+    }
+
+
+    private List<Record> lookup(Domain domain, boolean ipv6) throws IOException {
         int id;
+        int type = ipv6 ? Record.TYPE_AAAA : Record.TYPE_A;
         synchronized (random) {
             id = random.nextInt() & 0XFF;
         }
-        byte[] query = DnsMessage.buildQuery(domain.domain, id);
+        byte[] query = DnsMessage.buildQuery(domain.domain, type, id);
         byte[] answer = udpCommunicate(query);
         if (answer == null) {
             throw new DnsException(domain.domain, "cant get answer");
         }
 
-        return DnsMessage.parseResponse(answer, id, domain.domain);
+        DnsMessage.parseResponse(answer, id, domain.domain);
+        return new ArrayList<>(Arrays.asList(DnsMessage.parseResponse(answer, id, domain.domain)));
     }
 
     private byte[] udpCommunicate(byte[] question) throws IOException {

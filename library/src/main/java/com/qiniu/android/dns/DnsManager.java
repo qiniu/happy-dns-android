@@ -24,7 +24,7 @@ public final class DnsManager {
     private final LruCache<String, Record[]> cache;
     private final Hosts hosts = new Hosts();
     private final IpSorter sorter;
-    private volatile NetworkInfo info = null;
+    private volatile NetworkInfo info;
     private volatile int index = 0;
 
     public QueryErrorHandler queryErrorHandler;
@@ -52,11 +52,11 @@ public final class DnsManager {
     private static Record[] trimCname(Record[] records) {
         ArrayList<Record> a = new ArrayList<>(records.length);
         for (Record r : records) {
-            if (r != null && r.type == Record.TYPE_A) {
+            if (r != null && (r.type == Record.TYPE_A||r.type==Record.TYPE_AAAA)) {
                 a.add(r);
             }
         }
-        return a.toArray(new Record[a.size()]);
+        return a.toArray(new Record[0]);
     }
 
     private static void rotate(Record[] records) {
@@ -78,7 +78,7 @@ public final class DnsManager {
         if (a.size() == 0) {
             return null;
         }
-        return a.toArray(new String[a.size()]);
+        return a.toArray(new String[0]);
     }
 
     public static boolean validIP(String ip) {

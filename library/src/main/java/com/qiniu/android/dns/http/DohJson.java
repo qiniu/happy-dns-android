@@ -1,7 +1,5 @@
 package com.qiniu.android.dns.http;
 
-import android.util.Log;
-
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
@@ -83,8 +81,9 @@ public final class DohJson implements IResolver {
 
     /**
      * DohJson 查询dns
+     *
      * @param domain 域名
-     * @param ipv6 是否使用ipv6
+     * @param ipv6   是否使用ipv6
      * @return 返回Record列表
      * @throws IOException 当出错时抛出
      */
@@ -92,7 +91,7 @@ public final class DohJson implements IResolver {
     private List<Record> lookup(String domain, boolean ipv6) throws IOException {
         List<Record> records = new ArrayList<>();
         //A 类型的值为1，AAAA 类型的值为28
-        String type = ipv6 ? "28" : "1";
+        int type = ipv6 ? Record.TYPE_AAAA : Record.TYPE_A;
         URL u = new URL(url + "?name=" + domain + "&type=" + type);
         HttpURLConnection httpConn = (HttpURLConnection) u.openConnection();
         httpConn.setConnectTimeout(3000);
@@ -114,7 +113,6 @@ public final class DohJson implements IResolver {
             return records;
         }
         String response = new String(data, 0, read);
-        Log.e("DNS", response);
         long time = System.currentTimeMillis() / 1000;
         try {
             JSONArray ja = new JSONObject(response).getJSONArray("Answer");

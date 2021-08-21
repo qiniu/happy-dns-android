@@ -22,7 +22,7 @@ import java.util.HashSet;
  */
 public final class DnsMessage {
 
-    public static byte[] buildQuery(String domain, int id) {
+    public static byte[] buildQuery(String domain, int type, int id) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
         DataOutputStream dos = new DataOutputStream(baos);
         BitSet bits = new BitSet();
@@ -47,7 +47,7 @@ public final class DnsMessage {
             dos.writeShort(0);
 
             dos.flush();
-            writeQuestion(baos, domain);
+            writeQuestion(baos, domain, type);
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -64,11 +64,11 @@ public final class DnsMessage {
         out.write(0);
     }
 
-    private static void writeQuestion(OutputStream out, String domain) throws IOException {
+    private static void writeQuestion(OutputStream out, String domain, int type) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
         writeDomain(out, domain);
 //        type A
-        dos.writeShort(1);
+        dos.writeShort(type);
 //        class internet
         dos.writeShort(1);
     }
@@ -112,19 +112,19 @@ public final class DnsMessage {
      * @return The domain name string.
      * @throws IOException Should never happen.
      */
-    private static String readName(DataInputStream dis, byte data[])
+    private static String readName(DataInputStream dis, byte[] data)
             throws IOException {
         int c = dis.readUnsignedByte();
         if ((c & 0xc0) == 0xc0) {
             c = ((c & 0x3f) << 8) + dis.readUnsignedByte();
-            HashSet<Integer> jumps = new HashSet<Integer>();
+            HashSet<Integer> jumps = new HashSet<>();
             jumps.add(c);
             return readName(data, c, jumps);
         }
         if (c == 0) {
             return "";
         }
-        byte b[] = new byte[c];
+        byte[] b = new byte[c];
         dis.readFully(b);
         String s = IDN.toUnicode(new String(b));
         String t = readName(dis, data);
@@ -144,7 +144,7 @@ public final class DnsMessage {
      * @throws IOException on cycles.
      */
     private static String readName(
-            byte data[],
+            byte[] data,
             int offset,
             HashSet<Integer> jumps
     ) throws IOException {
@@ -196,12 +196,17 @@ public final class DnsMessage {
         long ttl = (((long) dis.readUnsignedShort()) << 16) +
                 dis.readUnsignedShort();
         int payloadLength = dis.readUnsignedShort();
-        String payload = null;
+        String payload;
         switch (type) {
             case Record.TYPE_A:
-                byte[] ip = new byte[4];
-                dis.readFully(ip);
-                payload = InetAddress.getByAddress(ip).getHostAddress();
+                byte[] ipv4 = new byte[4];
+                dis.readFully(ipv4);
+                payload = InetAddress.getByAddress(ipv4).getHostAddress();
+                break;
+            case Record.TYPE_AAAA:
+                byte[] ipv6 = new byte[16];
+                dis.readFully(ipv6);
+                payload = InetAddress.getByAddress(ipv6).getHostAddress();
                 break;
             case Record.TYPE_CNAME:
                 payload = readName(dis, data);

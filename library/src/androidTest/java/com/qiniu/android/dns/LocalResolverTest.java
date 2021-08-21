@@ -65,9 +65,9 @@ public class LocalResolverTest extends AndroidTestCase {
 //        template("1.2.4.8");
 //    }
 
-//    public void testGoogle() throws UnknownHostException {
-//        template("8.8.4.4");
-//    }
+    public void testGoogle() throws UnknownHostException {
+        template("8.8.4.4");
+    }
 
     public void testDnspod() throws UnknownHostException {
         template("119.29.29.29");

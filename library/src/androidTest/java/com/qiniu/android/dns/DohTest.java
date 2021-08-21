@@ -55,7 +55,7 @@ public class DohTest extends AndroidTestCase {
     }
 
     public void testDohJsonTimeout() throws IOException {
-        DohJson resolver = new DohJson("https://www.google.com", 5);
+        DohJson resolver = new DohJson("https://www.google.comcomhudhguhgudgdihuguhdg", 1);
         try {
             Record[] records = resolver.resolve(new Domain("baidu.com"), null);
             Assert.fail("no timeout");
@@ -113,7 +113,7 @@ public class DohTest extends AndroidTestCase {
     }
 
     public void testDohDnsTimeout() throws IOException {
-        DohDns resolver = new DohDns("https://www.google.com", 5);
+        DohDns resolver = new DohDns("https://www.google.comhudhguhgudgdihuguhdg", 1);
         try {
             Record[] records = resolver.resolve(new Domain("baidu.com"), null);
             Assert.fail("no timeout");

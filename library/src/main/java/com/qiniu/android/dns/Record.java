@@ -75,6 +75,9 @@ public final class Record {
     public boolean isA() {
         return type == TYPE_A;
     }
+    public boolean isAAAA() {
+        return type == TYPE_AAAA;
+    }
 
     public boolean isCname() {
         return type == TYPE_CNAME;

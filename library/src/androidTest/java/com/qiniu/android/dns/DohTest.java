@@ -14,12 +14,12 @@ public class DohTest extends AndroidTestCase {
     public void testDohJsonFound() throws IOException {
         DohJson resolver = new DohJson();
         try {
-            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("www.qq.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
             for (Record r : records) {
                 Assert.assertTrue(r.ttl >= 600);
-                Assert.assertTrue(r.isA()||r.isAAAA());
+                Assert.assertTrue(r.isA()||r.isAAAA()||r.isCname());
                 Assert.assertFalse(r.isExpired());
             }
 
@@ -28,14 +28,14 @@ public class DohTest extends AndroidTestCase {
         }
     }
     public void testDohJsonIpv6() throws IOException {
-        DohJson resolver = new DohJson("https://dns.alidns.com/resolve",10,true);
+        DohJson resolver = new DohJson().setUseIpv6(true);
         try {
-            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("www.qq.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
             for (Record r : records) {
                 Assert.assertTrue(r.ttl >= 600);
-                Assert.assertTrue(r.isA());
+                Assert.assertTrue(r.isA()||r.isAAAA()|| r.isCname());
                 Assert.assertFalse(r.isExpired());
             }
 
@@ -67,12 +67,12 @@ public class DohTest extends AndroidTestCase {
     public void testDohDnsFound() throws IOException {
         DohDns resolver = new DohDns();
         try {
-            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("www.baidu.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
             for (Record r : records) {
                 Assert.assertTrue(r.ttl >= 600);
-                Assert.assertTrue(r.isA());
+                Assert.assertTrue(r.isA()||r.isCname());
                 Assert.assertFalse(r.isExpired());
             }
 
@@ -82,14 +82,14 @@ public class DohTest extends AndroidTestCase {
     }
 
     public void testDohDnsIpv6() throws IOException {
-        DohDns resolver = new DohDns("https://dns.alidns.com/dns-query",10,true);
+        DohDns resolver = new DohDns().setUseIpv6(true);
         try {
-            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("www.qq.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
             for (Record r : records) {
                 Assert.assertTrue(r.ttl >= 600);
-                Assert.assertTrue(r.isA()||r.isAAAA());
+                Assert.assertTrue(r.isA()||r.isAAAA()||r.isCname());
                 Assert.assertFalse(r.isExpired());
             }
 
@@ -102,7 +102,11 @@ public class DohTest extends AndroidTestCase {
         DohDns resolver = new DohDns();
         try {
             Record[] records = resolver.resolve(new Domain("7777777.qiniu.com"), null);
-            Assert.assertNull(records);
+            for (Record r : records) {
+                Assert.assertTrue(r.ttl >= 600);
+                Assert.assertFalse(r.isA()||r.isAAAA());
+                Assert.assertFalse(r.isExpired());
+            }
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }

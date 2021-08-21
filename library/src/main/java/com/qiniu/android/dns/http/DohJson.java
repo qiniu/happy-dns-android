@@ -35,29 +35,22 @@ public final class DohJson implements IResolver {
     private boolean useIpv6;
 
     public DohJson() {
-        this.url = "https://dnh.alidns.com/resolve";
-        this.timeout = DNS_DEFAULT_TIMEOUT;
-        this.useIpv6 = false;
+        this("https://dns.alidns.com/resolve", DNS_DEFAULT_TIMEOUT, false);
     }
 
     public DohJson(String url) {
-        this.url = url;
-        this.timeout = DNS_DEFAULT_TIMEOUT;
-        this.useIpv6 = false;
-
+        this(url, DNS_DEFAULT_TIMEOUT, false);
     }
 
     public DohJson(String url, int timeout) {
-        this.url = url;
-        this.timeout = timeout;
-        this.useIpv6 = false;
+        this(url, timeout, false);
 
     }
 
     public DohJson(String url, int timeout, boolean useIpv6) {
         this.url = url;
         this.timeout = timeout;
-        this.useIpv6 = true;
+        this.useIpv6 = false;
 
     }
 
@@ -70,8 +63,13 @@ public final class DohJson implements IResolver {
     public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
         List<Record> records = new ArrayList<>();
         if (useIpv6) {
-            records.addAll(lookup(domain.domain, true));
+            List<Record> ipv6=lookup(domain.domain, true);
+            if(ipv6!=null&&ipv6.size()>0){
+                records.addAll(ipv6);
+            }
+
         }
+        List<Record> ipv4=lookup(domain.domain, true);
         records.addAll(lookup(domain.domain, false));
         if (records.size() == 0) {
             return null;

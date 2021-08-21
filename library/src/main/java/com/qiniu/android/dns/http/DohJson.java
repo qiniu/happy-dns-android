@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * DoH JSON
  */
-@SuppressWarnings("unused")
 public final class DohJson implements IResolver {
     /**
      * doh json 的地址
@@ -35,11 +34,11 @@ public final class DohJson implements IResolver {
     private boolean useIpv6;
 
     public DohJson() {
-        this("https://dns.alidns.com/resolve", DNS_DEFAULT_TIMEOUT, false);
+        this("https://dns.alidns.com/resolve");
     }
 
     public DohJson(String url) {
-        this(url, DNS_DEFAULT_TIMEOUT, false);
+        this(url, DNS_DEFAULT_TIMEOUT);
     }
 
     public DohJson(String url, int timeout) {
@@ -50,7 +49,7 @@ public final class DohJson implements IResolver {
     public DohJson(String url, int timeout, boolean useIpv6) {
         this.url = url;
         this.timeout = timeout;
-        this.useIpv6 = false;
+        this.useIpv6 = useIpv6;
 
     }
 

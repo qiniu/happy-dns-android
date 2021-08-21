@@ -51,7 +51,7 @@ public class DnsTest extends AndroidTestCase {
         Record[] ips = null;
         try {
             ips = dns.queryRecords("www.qiniu1.com");
-        } catch (IOException e){
+        } catch (IOException ignored){
         }
         assertNull(ips);
     }
@@ -94,7 +94,7 @@ public class DnsTest extends AndroidTestCase {
         d = new Domain("qiniu.com", false, false, 1000);
         r = dns.query(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertTrue(!"4.4.4.4".equals(r[0]));
+        Assert.assertFalse("4.4.4.4".equals(r[0]));
     }
 
     public void testCname() throws IOException {
@@ -117,7 +117,7 @@ public class DnsTest extends AndroidTestCase {
         d = new Domain("qiniu.com", false);
         r = dns.query(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertTrue(!"3.3.3.3".equals(r[0]));
+        Assert.assertFalse("3.3.3.3".equals(r[0]));
     }
 
     public void testSort() throws IOException {
@@ -202,9 +202,9 @@ public class DnsTest extends AndroidTestCase {
     public void testNeedHttpdns() {
         String id = TimeZone.getDefault().getID();
         if (id.equals("Asia/Shanghai")) {
-            assertEquals(true, DnsManager.needHttpDns());
+            assertTrue(DnsManager.needHttpDns());
         } else {
-            assertEquals(false, DnsManager.needHttpDns());
+            assertFalse(DnsManager.needHttpDns());
         }
     }
 }

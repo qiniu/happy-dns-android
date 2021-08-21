@@ -1,6 +1,5 @@
 package com.qiniu.android.dns.http;
 
-import android.annotation.SuppressLint;
 import android.util.Base64;
 
 import com.qiniu.android.dns.Domain;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-@SuppressLint("unused")
 public class DohDns implements IResolver {
     private static final Random random = new Random();
     private final int timeout;
@@ -26,15 +24,15 @@ public class DohDns implements IResolver {
     private boolean useIpv6;
 
     public DohDns() {
-        this("https://dns.alidns.com/dns-query", DNS_DEFAULT_TIMEOUT, false);
+        this("https://dns.alidns.com/dns-query");
     }
 
     public DohDns(String url) {
-        this(url, DNS_DEFAULT_TIMEOUT, false);
+        this(url, DNS_DEFAULT_TIMEOUT);
     }
 
     public DohDns(String url, int timeout) {
-        this(url, DNS_DEFAULT_TIMEOUT, false);
+        this(url, timeout, false);
     }
 
     public DohDns(String url, int timeout, boolean useIpv6) {

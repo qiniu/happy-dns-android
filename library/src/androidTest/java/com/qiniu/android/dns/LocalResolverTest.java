@@ -18,13 +18,16 @@ import java.net.UnknownHostException;
 public class LocalResolverTest extends AndroidTestCase {
 
     private void template(String ip) throws UnknownHostException {
-        Resolver resolver = new Resolver(InetAddress.getByName(ip));
+        template(ip,false);
+    }
+    private void template(String ip,boolean ipv6) throws UnknownHostException {
+        Resolver resolver = new Resolver(InetAddress.getByName(ip)).setUseIpv6(ipv6);
         template(resolver);
     }
 
     private void template(IResolver resolver) {
         try {
-            Record[] records = resolver.resolve(new Domain("baidu.com"), null);
+            Record[] records = resolver.resolve(new Domain("www.qq.com"), null);
             Assert.assertNotNull(records);
             Assert.assertTrue(records.length > 0);
             records = resolver.resolve(new Domain("www.qiniu.com"), null);
@@ -33,7 +36,7 @@ public class LocalResolverTest extends AndroidTestCase {
 
             for (Record r : records) {
                 Assert.assertTrue(r.value, r.ttl >= 600);
-                Assert.assertTrue(r.value, r.isA() || r.isCname());
+                Assert.assertTrue(r.value, r.isA() || r.isCname()||r.isAAAA());
                 Assert.assertFalse(r.value, r.isExpired());
             }
         } catch (IOException e) {
@@ -71,6 +74,10 @@ public class LocalResolverTest extends AndroidTestCase {
 
     public void testDnspod() throws UnknownHostException {
         template("119.29.29.29");
+    }
+
+    public void testIpv6() throws UnknownHostException{
+        template("223.5.5.5",true);
     }
 
     //    http://www.dnspai.com/ 360dns

@@ -3,7 +3,6 @@ package com.qiniu.android.dns.local;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.NetworkInfo;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -57,6 +56,7 @@ public final class Hosts {
         return r;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public synchronized Hosts put(String domain, Value val) {
         LinkedList<Value> vals = hosts.get(domain);
         if (vals == null) {
@@ -67,6 +67,7 @@ public final class Hosts {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Hosts put(String domain, String val) {
         put(domain, new Value(val));
         return this;
@@ -89,7 +90,7 @@ public final class Hosts {
             if (this == o) {
                 return true;
             }
-            if (o == null || !(o instanceof Value)) {
+            if (!(o instanceof Value)) {
                 return false;
             }
             Value another = (Value) o;

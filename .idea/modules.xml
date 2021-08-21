@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HappyDns_Android.iml" filepath="$PROJECT_DIR$/HappyDns_Android.iml" group="HappyDns_Android" />
-      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" group="HappyDns_Android/library" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/happy-dns-android.iml" filepath="$PROJECT_DIR$/.idea/modules/happy-dns-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/happy-dns-android.library.iml" filepath="$PROJECT_DIR$/.idea/modules/library/happy-dns-android.library.iml" />
     </modules>
   </component>
 </project>

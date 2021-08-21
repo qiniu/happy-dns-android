@@ -7,7 +7,7 @@ public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
 
     public enum Source {
-        Unknown, DnspodFree, DnspodEnterprise, System,
+        Unknown, DnspodFree, DnspodEnterprise, System, DohJson,DohDns,
     }
 
     /**
@@ -48,7 +48,7 @@ public final class Record {
     public Record(String value, int type, int ttl, long timeStamp, Source source) {
         this.value = value;
         this.type = type;
-        this.ttl = ttl < TTL_MIN_SECONDS ? TTL_MIN_SECONDS : ttl;
+        this.ttl = Math.max(ttl, TTL_MIN_SECONDS);
         this.timeStamp = timeStamp;
         this.source = source;
     }
@@ -57,7 +57,7 @@ public final class Record {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof Record)) {
+        if (!(o instanceof Record)) {
             return false;
         }
         Record another = (Record) o;

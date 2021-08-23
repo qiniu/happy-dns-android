@@ -145,7 +145,7 @@ public final class DnsManager {
         }
 
         if (validIP(domain.domain)) {
-            Record record = new Record(domain.domain, Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
+            Record record = new Record(domain.domain, Record.TYPE_A, Record.TTL_Forever, (new Date()).getTime(), Record.Source.Unknown);
             return new Record[]{record};
         }
 

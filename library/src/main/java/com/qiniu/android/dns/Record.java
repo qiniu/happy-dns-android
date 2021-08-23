@@ -8,6 +8,7 @@ import java.util.Locale;
  */
 public final class Record {
     public static final int TTL_MIN_SECONDS = 600;
+    public static final int TTL_Forever = -1;
 
     public static class Source {
         public static final int Unknown = 0;
@@ -122,6 +123,9 @@ public final class Record {
     }
 
     public boolean isExpired(long time) {
+        if (ttl == TTL_Forever) {
+            return false;
+        }
         return timeStamp + ttl < time;
     }
 

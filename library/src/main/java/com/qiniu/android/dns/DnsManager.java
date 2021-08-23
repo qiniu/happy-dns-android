@@ -19,12 +19,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * DNS解析管理类，可以重复使用
  */
 public final class DnsManager {
-    public static int Default_Host_Custom_Ip_TTL = 60 * 60 * 24 * 365 * 60;
 
     private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
     private final Hosts hosts = new Hosts();
-    private final IpSorter sorter;
+    private final RecordSorter sorter;
     private volatile NetworkInfo info = null;
     private volatile int index = 0;
 
@@ -43,7 +42,7 @@ public final class DnsManager {
      * @param resolvers 具体的dns 解析示例，可以是local或者httpdns
      * @param sorter    外部接口，对获取的IP数组进行排序
      */
-    public DnsManager(NetworkInfo info, IResolver[] resolvers, IpSorter sorter) {
+    public DnsManager(NetworkInfo info, IResolver[] resolvers, RecordSorter sorter) {
         this.info = info == null ? NetworkInfo.normal : info;
         this.resolvers = resolvers.clone();
         cache = new LruCache<>();
@@ -60,14 +59,6 @@ public final class DnsManager {
         return a.toArray(new Record[a.size()]);
     }
 
-    private static void rotate(Record[] records) {
-        if (records != null && records.length > 1) {
-            Record first = records[0];
-            System.arraycopy(records, 1, records, 0, records.length - 1);
-            records[records.length - 1] = first;
-        }
-    }
-
     private static String[] records2Ip(Record[] records) {
         if (records == null || records.length == 0) {
             return null;
@@ -80,6 +71,22 @@ public final class DnsManager {
             return null;
         }
         return a.toArray(new String[a.size()]);
+    }
+
+    private static Record[] filterInvalidRecords(Record[] records) {
+        if (records == null || records.length == 0) {
+            return null;
+        }
+        ArrayList<Record> ret = new ArrayList<>(records.length);
+        for (Record r : records) {
+            if (r != null && r.value != null && r.value.length() > 0 && !r.isExpired()) {
+                ret.add(r);
+            }
+        }
+        if (ret.size() == 0) {
+            return null;
+        }
+        return ret.toArray(new Record[ret.size()]);
     }
 
     public static boolean validIP(String ip) {
@@ -121,36 +128,6 @@ public final class DnsManager {
     /**
      * 查询域名
      *
-     * @param domain 域名
-     * @return ip 列表
-     * @throws IOException 网络异常或者无法解析抛出异常
-     */
-    public String[] query(String domain) throws IOException {
-        return query(new Domain(domain));
-    }
-
-    public String[] query(Domain domain) throws IOException {
-        if (domain == null) {
-            throw new IOException("null domain");
-        }
-        if (domain.domain == null || domain.domain.trim().length() == 0) {
-            throw new IOException("empty domain " + domain.domain);
-        }
-
-        if (validIP(domain.domain)) {
-            return new String[]{domain.domain};
-        }
-
-        String[] r = queryInternal(domain);
-        if (r == null || r.length <= 1) {
-            return r;
-        }
-        return sorter.sort(r);
-    }
-
-    /**
-     * 查询域名
-     *
      * @param domain 域名参数
      * @return ip 记录 列表
      * @throws IOException 网络异常或者无法解析抛出异常
@@ -172,34 +149,20 @@ public final class DnsManager {
             return new Record[]{record};
         }
 
-        return queryRecordInternal(domain);
-    }
-
-    /**
-     * 查询域名
-     *
-     * @param domain 域名参数
-     * @return ip 列表
-     * @throws IOException 网络异常或者无法解析抛出异常
-     */
-    private String[] queryInternal(Domain domain) throws IOException {
         Record[] records = queryRecordInternal(domain);
-        if (records == null || records.length == 0) {
-            return null;
-        }
-        return records2Ip(records);
+        return sorter.sort(records);
     }
 
     private Record[] queryRecordInternal(Domain domain) throws IOException {
 
         if (domain.hostsFirst) {
             Record[] ret = hosts.query(domain, info);
-            if (ret != null && ret.length != 0) {
+            ret = filterInvalidRecords(ret);
+            if (ret != null && ret.length > 0) {
                 return ret;
             }
         }
 
-        Record[] records = null;
         synchronized (cache) {
             if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()) {
                 cache.clear();
@@ -207,20 +170,15 @@ public final class DnsManager {
                     index = 0;
                 }
             } else {
-                records = cache.get(domain.domain);
-                if (records != null && records.length != 0) {
-                    if (!records[0].isExpired()) {
-                        if (records.length > 1) {
-                            rotate(records);
-                        }
-                        return records;
-                    } else {
-                        records = null;
-                    }
+                Record[] records = cache.get(domain.domain);
+                records = filterInvalidRecords(records);
+                if (records != null && records.length > 0) {
+                    return records;
                 }
             }
         }
 
+        Record[] records = null;
         IOException lastE = null;
         int firstOk = index;
         for (int i = 0; i < resolvers.length; i++) {
@@ -264,6 +222,7 @@ public final class DnsManager {
         if (records == null || records.length == 0) {
             if (!domain.hostsFirst) {
                 Record[] rs = hosts.query(domain, info);
+                rs = filterInvalidRecords(rs);
                 if (rs != null && rs.length != 0) {
                     return rs;
                 }
@@ -289,7 +248,12 @@ public final class DnsManager {
     }
 
     public InetAddress[] queryInetAdress(Domain domain) throws IOException {
-        String[] ips = query(domain);
+        Record[] records = queryRecords(domain);
+        String[] ips = records2Ip(records);
+        if (ips == null || ips.length == 0) {
+            return null;
+        }
+
         InetAddress[] addresses = new InetAddress[ips.length];
         for (int i = 0; i < ips.length; i++) {
             addresses[i] = InetAddress.getByName(ips[i]);
@@ -339,7 +303,7 @@ public final class DnsManager {
      * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, int type, String ip, int provider) {
-        hosts.put(domain, new Hosts.Value(new Record(ip, type, Default_Host_Custom_Ip_TTL), provider));
+        hosts.put(domain, new Hosts.Value(new Record(ip, type, Record.TTL_Forever), provider));
         return this;
     }
 
@@ -368,12 +332,12 @@ public final class DnsManager {
         return this;
     }
 
-    private static class DummySorter implements IpSorter {
+    private static class DummySorter implements RecordSorter {
         private AtomicInteger pos = new AtomicInteger();
 
         @Override
-        public String[] sort(String[] ips) {
-            return ips;
+        public Record[] sort(Record[] records) {
+            return records;
         }
     }
 

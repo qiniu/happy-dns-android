@@ -21,18 +21,18 @@ public class DnsTest extends AndroidTestCase {
         IResolver[] resolvers = new IResolver[1];
         resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
-        String[] ips = dns.query("www.qiniu.com");
-        assertNotNull(ips);
-        assertTrue(ips.length > 0);
+        Record[] records = dns.queryRecords("www.qiniu.com");
+        assertNotNull(records);
+        assertTrue(records.length > 0);
     }
 
     public void testQueryDnsRecords() throws IOException {
         IResolver[] resolvers = new IResolver[1];
         resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
-        Record[] ips = dns.queryRecords("www.qiniu.com");
-        assertNotNull(ips);
-        assertTrue(ips.length > 0);
+        Record[] records = dns.queryRecords("www.qiniu.com");
+        assertNotNull(records);
+        assertTrue(records.length > 0);
     }
 
     public void testQueryDnsErrorHandler() throws IOException {
@@ -65,9 +65,9 @@ public class DnsTest extends AndroidTestCase {
 
         dns.putHosts("qiniu.com", Record.TYPE_A,"4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", false, true);
-        String[] r = dns.query(d);
+        Record[] r = dns.queryRecords(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertEquals("4.4.4.4", r[0]);
+        Assert.assertEquals("4.4.4.4", r[0].value);
     }
 
     public void testTtl() throws IOException {
@@ -82,14 +82,14 @@ public class DnsTest extends AndroidTestCase {
 
         dns.putHosts("qiniu.com", Record.TYPE_A,"4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", false, false, 10);
-        String[] r = dns.query(d);
+        Record[] r = dns.queryRecords(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertEquals("4.4.4.4", r[0]);
+        Assert.assertEquals("4.4.4.4", r[0].value);
 
         d = new Domain("qiniu.com", false, false, 1000);
-        r = dns.query(d);
+        r = dns.queryRecords(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertTrue(!"4.4.4.4".equals(r[0]));
+        Assert.assertTrue(!"4.4.4.4".equals(r[0].value));
     }
 
     public void testCname() throws IOException {
@@ -105,32 +105,34 @@ public class DnsTest extends AndroidTestCase {
 
         dns.putHosts("qiniu.com", Record.TYPE_A, "4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", true);
-        String[] r = dns.query(d);
+        Record[] r = dns.queryRecords(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertEquals("3.3.3.3", r[0]);
+        Assert.assertEquals("3.3.3.3", r[0].value);
 
         d = new Domain("qiniu.com", false);
-        r = dns.query(d);
+        r = dns.queryRecords(d);
         Assert.assertEquals(1, r.length);
-        Assert.assertTrue(!"3.3.3.3".equals(r[0]));
+        Assert.assertTrue(!"3.3.3.3".equals(r[0].value));
     }
 
     public void testSort() throws IOException {
         IResolver[] resolvers = new IResolver[1];
         resolvers[0] = new HijackingDetectWrapper(
                 new DnsUdpResolver("114.114.115.115"));
-        IpSorter sorter = new IpSorter() {
+        RecordSorter sorter = new RecordSorter() {
             @Override
-            public String[] sort(String[] ips) {
-                String[] ret = new String[ips.length];
-                if (flag) {
-                    ret[0] = "2.2.2.2";
-                    ret[1] = "1.1.1.1";
-                } else {
-                    ret[0] = "1.1.1.1";
-                    ret[1] = "2.2.2.2";
+            public Record[] sort(Record[] records) {
+                if (records.length < 2)  {
+                    return records;
                 }
-                return ret;
+                if (flag) {
+                    records[0] = new Record("2.2.2.2", Record.TYPE_A, 120);
+                    records[1] = new Record("1.1.1.1", Record.TYPE_A, 120);
+                } else {
+                    records[0] = new Record("1.1.1.1", Record.TYPE_A, 120);
+                    records[1] = new Record("2.2.2.2", Record.TYPE_A, 120);
+                }
+                return records;
             }
         };
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers, sorter);
@@ -141,16 +143,16 @@ public class DnsTest extends AndroidTestCase {
 
         dns.putHosts("qiniu.com", Record.TYPE_A, "4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("hello.qiniu.com", true, true);
-        String[] ips = dns.query(d);
-        Assert.assertEquals(2, ips.length);
-        Assert.assertEquals("1.1.1.1", ips[0]);
-        Assert.assertEquals("2.2.2.2", ips[1]);
+        Record[] records = dns.queryRecords(d);
+        Assert.assertEquals(2, records.length);
+        Assert.assertEquals("1.1.1.1", records[0].value);
+        Assert.assertEquals("2.2.2.2", records[1].value);
         flag = true;
         d = new Domain("hello.qiniu.com", true, true);
-        ips = dns.query(d);
-        Assert.assertEquals(2, ips.length);
-        Assert.assertEquals("2.2.2.2", ips[0]);
-        Assert.assertEquals("1.1.1.1", ips[1]);
+        records = dns.queryRecords(d);
+        Assert.assertEquals(2, records.length);
+        Assert.assertEquals("2.2.2.2", records[0].value);
+        Assert.assertEquals("1.1.1.1", records[1].value);
     }
 
     public void testNull() {
@@ -159,7 +161,7 @@ public class DnsTest extends AndroidTestCase {
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
         IOException e = null;
         try {
-            dns.query((String) null);
+            dns.queryRecords((String) null);
         } catch (IOException ex) {
             ex.printStackTrace();
             e = ex;
@@ -168,7 +170,7 @@ public class DnsTest extends AndroidTestCase {
         assertNotNull(e);
         e = null;
         try {
-            dns.query((Domain) null);
+            dns.queryRecords((Domain) null);
         } catch (IOException ex) {
             ex.printStackTrace();
             e = ex;
@@ -177,7 +179,7 @@ public class DnsTest extends AndroidTestCase {
         assertNotNull(e);
         e = null;
         try {
-            dns.query("");
+            dns.queryRecords("");
         } catch (IOException ex) {
             ex.printStackTrace();
             e = ex;
@@ -189,9 +191,9 @@ public class DnsTest extends AndroidTestCase {
         IResolver[] resolvers = new IResolver[1];
         resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
         DnsManager dns = new DnsManager(NetworkInfo.normal, resolvers);
-        String[] ips = dns.query("1.1.1.1");
-        assertEquals(ips.length, 1);
-        assertEquals(ips[0], "1.1.1.1");
+        Record[] records = dns.queryRecords("1.1.1.1");
+        assertEquals(records.length, 1);
+        assertEquals(records[0].value, "1.1.1.1");
     }
 
     public void testNeedHttpdns() {

@@ -52,7 +52,7 @@ public final class DnsManager {
     private static Record[] trimCname(Record[] records) {
         ArrayList<Record> a = new ArrayList<>(records.length);
         for (Record r : records) {
-            if (r != null && r.type == Record.TYPE_A) {
+            if (r != null && (r.isA() || r.isAAAA())) {
                 a.add(r);
             }
         }

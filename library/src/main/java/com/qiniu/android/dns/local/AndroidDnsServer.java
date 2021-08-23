@@ -1,5 +1,6 @@
 package com.qiniu.android.dns.local;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -132,7 +133,7 @@ public final class AndroidDnsServer {
             LineNumberReader lnr = new LineNumberReader(
                     new InputStreamReader(inputStream));
             String line = null;
-            ArrayList<InetAddress> servers = new ArrayList<InetAddress>(5);
+            ArrayList<InetAddress> servers = new ArrayList<>(5);
             while ((line = lnr.readLine()) != null) {
                 int split = line.indexOf("]: [");
                 if (split <= 1 || line.length() - 1 <= split + 4) {
@@ -170,10 +171,10 @@ public final class AndroidDnsServer {
     // 1ms
     public static List<InetAddress> getByReflection() {
         try {
+            @SuppressLint("PrivateApi")
             Class<?> SystemProperties =
                     Class.forName("android.os.SystemProperties");
-            Method method = SystemProperties.getMethod("get",
-                    new Class<?>[]{String.class});
+            Method method = SystemProperties.getMethod("get", String.class);
 
             ArrayList<InetAddress> servers = new ArrayList<InetAddress>(5);
 

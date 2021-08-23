@@ -12,9 +12,11 @@ public final class Record {
 
     public static class Source {
         public static final int Unknown = 0;
-        public static final int DnspodEnterprise = 1;
-        public static final int Udp = 2;
-        public static final int Doh = 3;
+        public static final int Custom = 1;
+        public static final int DnspodEnterprise = 2;
+        public static final int System = 3;
+        public static final int Udp = 4;
+        public static final int Doh = 5;
     }
 
     /**

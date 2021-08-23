@@ -284,7 +284,7 @@ public final class DnsManager {
      * 插入指定运营商的hosts配置
      *
      * @param domain   域名
-     * @param record   record 记录
+     * @param record   record 记录, source 配置为 @{@link Record.Source#Custom}
      * @param provider 运营商，见 NetworkInfo
      * @return 当前的DnsManager，便于链式调用
      */
@@ -303,7 +303,7 @@ public final class DnsManager {
      * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, int type, String ip, int provider) {
-        hosts.put(domain, new Hosts.Value(new Record(ip, type, Record.TTL_Forever), provider));
+        putHosts(domain, new Record(ip, type, Record.TTL_Forever, new Date().getTime()/1000, Record.Source.Custom), provider);
         return this;
     }
 
@@ -328,7 +328,7 @@ public final class DnsManager {
      * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, String ipv4) {
-        putHosts(domain, Record.TYPE_A, ipv4, NetworkInfo.ISP_GENERAL);
+        putHosts(domain, Record.TYPE_A, ipv4);
         return this;
     }
 

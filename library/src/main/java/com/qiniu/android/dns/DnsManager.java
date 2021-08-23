@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * DNS解析管理类，可以重复使用
  */
 public final class DnsManager {
+    public static int Default_Host_Custom_Ip_TTL = 60 * 60 * 24 * 365 * 60;
 
     private final IResolver[] resolvers;
     private final LruCache<String, Record[]> cache;
@@ -153,7 +154,7 @@ public final class DnsManager {
      * @param domain 域名参数
      * @return ip 记录 列表
      * @throws IOException 网络异常或者无法解析抛出异常
-     * */
+     */
     public Record[] queryRecords(String domain) throws IOException {
         return queryRecords(new Domain(domain));
     }
@@ -183,7 +184,7 @@ public final class DnsManager {
      */
     private String[] queryInternal(Domain domain) throws IOException {
         Record[] records = queryRecordInternal(domain);
-        if (records == null || records.length == 0){
+        if (records == null || records.length == 0) {
             return null;
         }
         return records2Ip(records);
@@ -191,21 +192,14 @@ public final class DnsManager {
 
     private Record[] queryRecordInternal(Domain domain) throws IOException {
 
-//        有些手机网络状态可能不对
-//        if (info.netStatus == NetworkInfo.NO_NETWORK){
-//            return null;
-//        }
-        Record[] records = null;
         if (domain.hostsFirst) {
-            String[] ret = hosts.query(domain, info);
+            Record[] ret = hosts.query(domain, info);
             if (ret != null && ret.length != 0) {
-                records = new Record[ret.length];
-                for (int i=0; i<ret.length; i++){
-                    records[i] = new Record(ret[i], Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
-                }
-                return records;
+                return ret;
             }
         }
+
+        Record[] records = null;
         synchronized (cache) {
             if (info.equals(NetworkInfo.normal) && Network.isNetworkChanged()) {
                 cache.clear();
@@ -240,7 +234,7 @@ public final class DnsManager {
             } catch (IOException e) {
                 lastE = e;
                 e.printStackTrace();
-                if (queryErrorHandler != null){
+                if (queryErrorHandler != null) {
                     queryErrorHandler.queryError(e, domain.domain);
                 }
             } catch (Exception e2) {
@@ -248,7 +242,7 @@ public final class DnsManager {
                     lastE = new IOException(e2);
                 }
                 e2.printStackTrace();
-                if (queryErrorHandler != null){
+                if (queryErrorHandler != null) {
                     queryErrorHandler.queryError(e2, domain.domain);
                 }
             }
@@ -269,27 +263,24 @@ public final class DnsManager {
 
         if (records == null || records.length == 0) {
             if (!domain.hostsFirst) {
-                String[] rs = hosts.query(domain, info);
+                Record[] rs = hosts.query(domain, info);
                 if (rs != null && rs.length != 0) {
-                    records = new Record[rs.length];
-                    for (int i=0; i<rs.length; i++){
-                        records[i] = new Record(rs[i], Record.TYPE_A, Record.TTL_MIN_SECONDS, (new Date()).getTime(), Record.Source.Unknown);
-                    }
-                    return records;
+                    return rs;
                 }
             }
             if (lastE != null) {
                 throw lastE;
             }
             IOException e = new UnknownHostException(domain.domain);
-            if (queryErrorHandler != null){
+            if (queryErrorHandler != null) {
                 queryErrorHandler.queryError(e, domain.domain);
             }
             throw e;
         }
+
         records = trimCname(records);
         if (records.length == 0) {
-            throw new UnknownHostException("no A records");
+            throw new UnknownHostException("no A/AAAA records");
         }
         synchronized (cache) {
             cache.put(domain.domain, records);
@@ -329,12 +320,26 @@ public final class DnsManager {
      * 插入指定运营商的hosts配置
      *
      * @param domain   域名
+     * @param record   record 记录
+     * @param provider 运营商，见 NetworkInfo
+     * @return 当前的DnsManager，便于链式调用
+     */
+    public DnsManager putHosts(String domain, Record record, int provider) {
+        hosts.put(domain, new Hosts.Value(record, provider));
+        return this;
+    }
+
+    /**
+     * 插入指定运营商的hosts配置
+     *
+     * @param domain   域名
+     * @param type     ip 类别，{@link Record#TYPE_A} / {@link Record#TYPE_AAAA}
      * @param ip       ip
      * @param provider 运营商，见 NetworkInfo
      * @return 当前的DnsManager，便于链式调用
      */
-    public DnsManager putHosts(String domain, String ip, int provider) {
-        hosts.put(domain, new Hosts.Value(ip, provider));
+    public DnsManager putHosts(String domain, int type, String ip, int provider) {
+        hosts.put(domain, new Hosts.Value(new Record(ip, type, Default_Host_Custom_Ip_TTL), provider));
         return this;
     }
 
@@ -342,11 +347,24 @@ public final class DnsManager {
      * 插入指定运营商的hosts配置
      *
      * @param domain 域名
+     * @param type   ip 类别，{@link Record#TYPE_A} / {@link Record#TYPE_AAAA}
      * @param ip     ip
      * @return 当前的DnsManager，便于链式调用
      */
-    public DnsManager putHosts(String domain, String ip) {
-        hosts.put(domain, ip);
+    public DnsManager putHosts(String domain, int type, String ip) {
+        putHosts(domain, type, ip, NetworkInfo.ISP_GENERAL);
+        return this;
+    }
+
+    /**
+     * 插入指定运营商的hosts配置
+     *
+     * @param domain 域名
+     * @param ipv4   ipv4 ip
+     * @return 当前的DnsManager，便于链式调用
+     */
+    public DnsManager putHosts(String domain, String ipv4) {
+        putHosts(domain, Record.TYPE_A, ipv4, NetworkInfo.ISP_GENERAL);
         return this;
     }
 

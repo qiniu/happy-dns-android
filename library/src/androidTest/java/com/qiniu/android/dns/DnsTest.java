@@ -63,7 +63,7 @@ public class DnsTest extends AndroidTestCase {
         dns.putHosts("hello.qiniu.com", "2.2.2.2");
         dns.putHosts("qiniu.com", "3.3.3.3");
 
-        dns.putHosts("qiniu.com", "4.4.4.4", NetworkInfo.ISP_CNC);
+        dns.putHosts("qiniu.com", Record.TYPE_A,"4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", false, true);
         String[] r = dns.query(d);
         Assert.assertEquals(1, r.length);
@@ -73,16 +73,14 @@ public class DnsTest extends AndroidTestCase {
     public void testTtl() throws IOException {
         IResolver[] resolvers = new IResolver[2];
         resolvers[0] = AndroidDnsServer.defaultResolver(getContext());
-        resolvers[1] = new HijackingDetectWrapper(
-                new DnsUdpResolver("223.5.5.5"));
-        DnsManager dns = new DnsManager(new NetworkInfo(
-                NetworkInfo.NetSatus.MOBILE, NetworkInfo.ISP_CNC), resolvers);
+        resolvers[1] = new HijackingDetectWrapper(new DnsUdpResolver("223.5.5.5"));
+        DnsManager dns = new DnsManager(new NetworkInfo(NetworkInfo.NetSatus.MOBILE, NetworkInfo.ISP_CNC), resolvers);
 
         dns.putHosts("hello.qiniu.com", "1.1.1.1");
         dns.putHosts("hello.qiniu.com", "2.2.2.2");
         dns.putHosts("qiniu.com", "3.3.3.3");
 
-        dns.putHosts("qiniu.com", "4.4.4.4", NetworkInfo.ISP_CNC);
+        dns.putHosts("qiniu.com", Record.TYPE_A,"4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", false, false, 10);
         String[] r = dns.query(d);
         Assert.assertEquals(1, r.length);
@@ -105,7 +103,7 @@ public class DnsTest extends AndroidTestCase {
         dns.putHosts("hello.qiniu.com", "2.2.2.2");
         dns.putHosts("qiniu.com", "3.3.3.3");
 
-        dns.putHosts("qiniu.com", "4.4.4.4", NetworkInfo.ISP_CNC);
+        dns.putHosts("qiniu.com", Record.TYPE_A, "4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("qiniu.com", true);
         String[] r = dns.query(d);
         Assert.assertEquals(1, r.length);
@@ -141,7 +139,7 @@ public class DnsTest extends AndroidTestCase {
         dns.putHosts("hello.qiniu.com", "2.2.2.2");
         dns.putHosts("qiniu.com", "3.3.3.3");
 
-        dns.putHosts("qiniu.com", "4.4.4.4", NetworkInfo.ISP_CNC);
+        dns.putHosts("qiniu.com", Record.TYPE_A, "4.4.4.4", NetworkInfo.ISP_CNC);
         Domain d = new Domain("hello.qiniu.com", true, true);
         String[] ips = dns.query(d);
         Assert.assertEquals(2, ips.length);

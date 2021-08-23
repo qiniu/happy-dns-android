@@ -1,5 +1,6 @@
 package com.qiniu.android.dns;
 
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -62,6 +63,15 @@ public final class Record {
     public final int source;
 
     public final String server;
+
+    public Record(String value, int type, int ttl) {
+        this.value = value;
+        this.type = type;
+        this.ttl = ttl;
+        this.timeStamp = new Date().getTime() / 1000;
+        this.source = Source.Unknown;
+        this.server = null;
+    }
 
     public Record(String value, int type, int ttl, long timeStamp, int source) {
         this.value = value;

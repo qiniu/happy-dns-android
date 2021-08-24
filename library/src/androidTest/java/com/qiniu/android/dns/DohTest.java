@@ -27,6 +27,19 @@ public class DohTest extends AndroidTestCase {
                 Assert.fail("query records error:" + e);
             }
         }
+
+        for (int type : typeArray) {
+            DohResolver resolver = new DohResolver(server, type, 5);
+            DnsManager manager = new DnsManager(null, new IResolver[]{resolver});
+            try {
+                Record[] records = manager.queryRecords(host);
+                System.out.println("=== dns manager records:" + Arrays.toString(records));
+                Assert.assertTrue(" dns manager records is empty", records != null && records.length > 0);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Assert.fail("query dns manager records error:" + e);
+            }
+        }
     }
 
     public void testMultiDnsServer() {

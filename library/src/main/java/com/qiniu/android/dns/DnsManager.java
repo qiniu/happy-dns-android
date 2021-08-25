@@ -289,7 +289,8 @@ public final class DnsManager {
      * @return 当前的DnsManager，便于链式调用
      */
     public DnsManager putHosts(String domain, Record record, int provider) {
-        hosts.put(domain, new Hosts.Value(record, provider));
+        Record recordNew = new Record(record.value, record.type, record.ttl, record.timeStamp, Record.Source.Custom, record.server);
+        hosts.put(domain, new Hosts.Value(recordNew, provider));
         return this;
     }
 

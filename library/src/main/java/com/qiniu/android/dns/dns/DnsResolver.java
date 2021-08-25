@@ -117,9 +117,9 @@ public abstract class DnsResolver implements IResolver {
                         synchronized (waiter) {
                             try {
                                 response[0] = request(serverP, host, recordType);
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
-                                exceptions[0] = e;
+                                exceptions[0] = new IOException(e);
                             }
                             completedCount[0] += 1;
 

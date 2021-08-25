@@ -92,6 +92,7 @@ public abstract class DnsResolver implements IResolver {
             return response;
         } else {
             final DnsResponse[] response = {null};
+            final IOException[] exceptions = {null};
             final int[] completedCount = {0};
             final Object waiter = new Object();
 
@@ -101,6 +102,7 @@ public abstract class DnsResolver implements IResolver {
                 public Object call() throws Exception {
                     synchronized (waiter) {
                         waiter.notify();
+                        exceptions[0] = new IOException("resolver timeout for server:" + servers.toString() + " host:" + host);
                     }
                     return null;
                 }
@@ -117,6 +119,7 @@ public abstract class DnsResolver implements IResolver {
                                 response[0] = request(serverP, host, recordType);
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                exceptions[0] = e;
                             }
                             completedCount[0] += 1;
 
@@ -135,6 +138,11 @@ public abstract class DnsResolver implements IResolver {
                     e.printStackTrace();
                 }
             }
+
+            if (exceptions[0] != null) {
+                throw  exceptions[0];
+            }
+
             return response[0];
         }
 

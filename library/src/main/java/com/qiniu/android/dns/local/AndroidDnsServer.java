@@ -1,5 +1,6 @@
 package com.qiniu.android.dns.local;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -12,6 +13,7 @@ import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
+import com.qiniu.android.dns.dns.DnsUdpResolver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,8 +77,6 @@ public final class AndroidDnsServer {
             else {
                 dnsServers.addAll(addresses);
             }
-
-
         }
 
         @Override
@@ -96,7 +96,7 @@ public final class AndroidDnsServer {
 
             InetAddress dnsServer  = dnsServers.get(0);
 
-            IResolver resolver = new HijackingDetectWrapper(new Resolver(dnsServer));
+            IResolver resolver = new HijackingDetectWrapper(new DnsUdpResolver(dnsServer.getHostName()));
             Record[] records = resolver.resolve(domain, info);
             if (domain.hasCname) {
                 boolean cname = false;
@@ -133,7 +133,7 @@ public final class AndroidDnsServer {
             LineNumberReader lnr = new LineNumberReader(
                     new InputStreamReader(inputStream));
             String line = null;
-            ArrayList<InetAddress> servers = new ArrayList<InetAddress>(5);
+            ArrayList<InetAddress> servers = new ArrayList<>(5);
             while ((line = lnr.readLine()) != null) {
                 int split = line.indexOf("]: [");
                 if (split <= 1 || line.length() - 1 <= split + 4) {
@@ -171,10 +171,10 @@ public final class AndroidDnsServer {
     // 1ms
     public static List<InetAddress> getByReflection() {
         try {
+            @SuppressLint("PrivateApi")
             Class<?> SystemProperties =
                     Class.forName("android.os.SystemProperties");
-            Method method = SystemProperties.getMethod("get",
-                    new Class<?>[]{String.class});
+            Method method = SystemProperties.getMethod("get", String.class);
 
             ArrayList<InetAddress> servers = new ArrayList<InetAddress>(5);
 
@@ -212,46 +212,5 @@ public final class AndroidDnsServer {
     public static IResolver defaultResolver(Context context) {
 //        the system dns ip would change after network changed.
         return new AndroidResolver(context);
-
-      /*
-        return new IResolver() {
-            @Override
-            public Record[] resolve(Domain domain, NetworkInfo info) throws IOException {
-                List<InetAddress> addresses = getByReflection();
-                if (addresses == null) {
-                    addresses = getByCommand();
-                }
-                if (addresses == null) {
-                    throw new IOException("cant get local dns server");
-                }
-                IResolver resolver = new HijackingDetectWrapper(new Resolver(addresses.get(0)));
-                Record[] records = resolver.resolve(domain, info);
-                if (domain.hasCname) {
-                    boolean cname = false;
-                    for (Record r : records) {
-                        if (r.isCname()) {
-                            cname = true;
-                            break;
-                        }
-                    }
-                    if (!cname) {
-                        throw new DnshijackingException(domain.domain,
-                                addresses[0].getHostAddress());
-                    }
-                }
-                if (domain.maxTtl != 0) {
-                    for (Record r : records) {
-                        if (!r.isCname()) {
-                            if (r.ttl > domain.maxTtl) {
-                                throw new DnshijackingException(domain.domain,
-                                        addresses[0].getHostAddress(), r.ttl);
-                            }
-                        }
-                    }
-                }
-                return records;
-            }
-        };
-        */
     }
 }

@@ -1,4 +1,15 @@
 #Changelog
+## 1.0.0 (2021-08-19)
+
+### 增加
+* 增加 Doh Resolver
+* 增加 Udp Resolver 替换 Resolver
+
+### 删除
+* 删除 Resolver
+* 删除 Qiniu Dns
+* 删除 DnspodFree 
+
 ## 0.2.18 (2021-05-11)
 
 ### 修改

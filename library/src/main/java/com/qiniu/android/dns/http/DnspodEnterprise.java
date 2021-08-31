@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,6 +20,8 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by bailong on 15/7/22.
  */
 public final class DnspodEnterprise implements IResolver {
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+
     private final String id;
     private final String ip;
     private final SecretKeySpec key;
@@ -32,12 +35,7 @@ public final class DnspodEnterprise implements IResolver {
         this.id = id;
         this.ip = ip;
         this.timeout = timeout;
-        byte[] k;
-        try {
-            k = key.getBytes("utf-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
+        byte[] k = key.getBytes(UTF_8);
         this.key = new SecretKeySpec(k, "DES");
     }
 
@@ -97,7 +95,7 @@ public final class DnspodEnterprise implements IResolver {
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            byte[] encryptedString = cipher.doFinal(domain.getBytes("utf-8"));
+            byte[] encryptedString = cipher.doFinal(domain.getBytes(UTF_8));
             return Hex.encodeHexString(encryptedString) + "&id=" + id;
 
         } catch (Exception e) {

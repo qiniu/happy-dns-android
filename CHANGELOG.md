@@ -1,9 +1,13 @@
 #Changelog
-## 1.0.0 (2021-08-19)
+## 1.0.0 (2021-09-02)
 
 ### 增加
 * 增加 Doh Resolver
-* 增加 Udp Resolver 替换 Resolver
+* 增加 Udp Resolver
+
+### 修改
+*  调整 Record api
+*  调整 DnsManager api，支持返回 IPv6
 
 ### 删除
 * 删除 Resolver

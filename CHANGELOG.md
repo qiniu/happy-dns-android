@@ -1,4 +1,9 @@
 #Changelog
+## 1.0.1 (2022-06-02)
+
+### 修改
+*  udp 和 doh resolver 共享 ThreadPool
+
 ## 1.0.0 (2021-09-02)
 
 ### 增加

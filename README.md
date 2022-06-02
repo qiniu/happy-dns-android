@@ -18,7 +18,7 @@
 ### 通过maven
 * Android Studio中添加dependencies 或者 在项目中添加maven依赖
 ```
-implementation 'com.qiniu:happy-dns:1.0.0'
+implementation 'com.qiniu:happy-dns:1.0.1'
 ```
 
 

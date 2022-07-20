@@ -11,12 +11,16 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class DnsResolver implements IResolver {
 
     private static ScheduledExecutorService timeoutExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private static ExecutorService defaultExecutorService = new ThreadPoolExecutor(0, 4,
+            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     private final int recordType;
     private final String[] servers;
@@ -37,7 +41,7 @@ public abstract class DnsResolver implements IResolver {
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout) {
-        this(servers, recordType, timeout, (servers != null && servers.length > 0) ? Executors.newFixedThreadPool(servers.length) : null);
+        this(servers, recordType, timeout, (servers != null && servers.length > 0) ? defaultExecutorService : null);
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout, ExecutorService executorService) {
@@ -92,6 +96,7 @@ public abstract class DnsResolver implements IResolver {
             return response;
         } else {
             final DnsResponse[] response = {null};
+            final IOException[] exceptions = {null};
             final int[] completedCount = {0};
             final Object waiter = new Object();
 
@@ -101,6 +106,7 @@ public abstract class DnsResolver implements IResolver {
                 public Object call() throws Exception {
                     synchronized (waiter) {
                         waiter.notify();
+                        exceptions[0] = new IOException("resolver timeout for server:" + servers.toString() + " host:" + host);
                     }
                     return null;
                 }
@@ -115,8 +121,9 @@ public abstract class DnsResolver implements IResolver {
                         synchronized (waiter) {
                             try {
                                 response[0] = request(serverP, host, recordType);
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
+                                exceptions[0] = new IOException(e);
                             }
                             completedCount[0] += 1;
 
@@ -135,10 +142,15 @@ public abstract class DnsResolver implements IResolver {
                     e.printStackTrace();
                 }
             }
+
+            if (exceptions[0] != null) {
+                throw exceptions[0];
+            }
+
             return response[0];
         }
 
     }
 
-     abstract DnsResponse request(String server, String host, int recordType) throws IOException;
+    abstract DnsResponse request(String server, String host, int recordType) throws IOException;
 }

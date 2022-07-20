@@ -28,7 +28,9 @@ DnsManager 可以创建一次，一直使用。
     IResolver[] resolvers = new IResolver[3];
     resolvers[0] = AndroidDnsServer.defaultResolver(getContext()); //系统默认 DNS 服务器
     resolvers[1] = new DnsUdpResolver("8.8.8.8"); //自定义 DNS 服务器地址
+    resolvers[2] = new DohResolver("https://dns.alidns.com/dns-query");
     DnsManager dns = new DnsManager(NetworkInfo.normal(), resolvers);
+    Record[] records = dns.queryRecords("www.qiniu.com");
 ```
 
 ## 测试

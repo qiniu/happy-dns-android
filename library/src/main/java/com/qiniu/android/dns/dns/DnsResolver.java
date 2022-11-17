@@ -11,16 +11,14 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class DnsResolver implements IResolver {
 
     private static ScheduledExecutorService timeoutExecutorService = Executors.newSingleThreadScheduledExecutor();
-    private static ExecutorService defaultExecutorService = new ThreadPoolExecutor(0, 4,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    private static ExecutorService defaultExecutorService = Executors.newFixedThreadPool(4);
 
     private final int recordType;
     private final String[] servers;
@@ -41,10 +39,13 @@ public abstract class DnsResolver implements IResolver {
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout) {
-        this(servers, recordType, timeout, (servers != null && servers.length > 0) ? defaultExecutorService : null);
+        this(servers, recordType, timeout, null);
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout, ExecutorService executorService) {
+        if (servers != null && servers.length > 0 && executorService == null) {
+            executorService = defaultExecutorService;
+        }
         this.recordType = recordType;
         this.timeout = timeout > 0 ? timeout : DNS_DEFAULT_TIMEOUT;
         this.servers = servers;
@@ -95,7 +96,7 @@ public abstract class DnsResolver implements IResolver {
             }
             return response;
         } else {
-            final DnsResponse[] response = {null};
+            final DnsResponse[] responses = {null};
             final IOException[] exceptions = {null};
             final int[] completedCount = {0};
             final Object waiter = new Object();
@@ -106,33 +107,46 @@ public abstract class DnsResolver implements IResolver {
                 public Object call() throws Exception {
                     synchronized (waiter) {
                         waiter.notify();
-                        exceptions[0] = new IOException("resolver timeout for server:" + servers.toString() + " host:" + host);
+                        exceptions[0] = new IOException("resolver timeout for server:" + servers + " host:" + host);
                     }
                     return null;
                 }
             }, timeout, TimeUnit.SECONDS);
 
             // 返回一个即结束
+            List<Future<?>> futures = new ArrayList<>();
             for (final String server : servers) {
-                final String serverP = server;
-                executorService.submit(new Runnable() {
+                Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
+                        DnsResponse response = null;
+                        IOException exception = null;
+
+                        try {
+                            response = request(server, host, recordType);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            exception = new IOException(e);
+                        }
+
                         synchronized (waiter) {
-                            try {
-                                response[0] = request(serverP, host, recordType);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                exceptions[0] = new IOException(e);
-                            }
                             completedCount[0] += 1;
 
-                            if (completedCount[0] == servers.length || response[0] != null) {
+                            if (response != null) {
+                                responses[0] = response;
+                            }
+
+                            if (exception != null) {
+                                exceptions[0] = exception;
+                            }
+
+                            if (completedCount[0] == servers.length || responses[0] != null) {
                                 waiter.notify();
                             }
                         }
                     }
                 });
+                futures.add(future);
             }
 
             synchronized (waiter) {
@@ -143,11 +157,15 @@ public abstract class DnsResolver implements IResolver {
                 }
             }
 
-            if (exceptions[0] != null) {
+            for (Future<?> f : futures) {
+                f.cancel(true);
+            }
+
+            if (exceptions[0] != null && responses[0] == null) {
                 throw exceptions[0];
             }
 
-            return response[0];
+            return responses[0];
         }
 
     }

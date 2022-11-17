@@ -1,11 +1,10 @@
 package com.qiniu.android.dns;
 
-import android.test.AndroidTestCase;
-import android.util.Log;
-
 import com.qiniu.android.dns.local.AndroidDnsServer;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -13,7 +12,9 @@ import java.util.List;
 /**
  * Created by bailong on 15/6/16.
  */
-public class LocalServerTest extends AndroidTestCase {
+public class LocalServerTest extends TestCase {
+
+    @Test
     public void testCmd() {
         long t1 = System.currentTimeMillis();
         List<InetAddress> servers = AndroidDnsServer.getByCommand();
@@ -24,6 +25,7 @@ public class LocalServerTest extends AndroidTestCase {
 //        Log.v("localtest", servers.get(0).getHostAddress());
     }
 
+    @Test
     public void testReflection() {
         long t1 = System.currentTimeMillis();
         List<InetAddress> servers = AndroidDnsServer.getByReflection();

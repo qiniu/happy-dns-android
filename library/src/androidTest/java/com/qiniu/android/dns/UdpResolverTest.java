@@ -1,15 +1,19 @@
 package com.qiniu.android.dns;
 
-import android.test.AndroidTestCase;
-
 import com.qiniu.android.dns.dns.DnsUdpResolver;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 
-public class UdpResolverTest extends AndroidTestCase {
+public class UdpResolverTest extends TestCase {
+
+    @Test
     public void testSimpleDns() {
         String host = "en.wikipedia.org";
         String server = "114.114.114.114";
@@ -41,13 +45,14 @@ public class UdpResolverTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testMultiDnsServer() {
         String host = "en.wikipedia.org";
-        String[] servers = new String[]{"114.114.114.114", "8.8.8.8"};
+        String[] servers = new String[]{"223.5.1.1", "114.114.114.11", "223.5.5.5", "28.67.222.222"};
         int[] typeArray = new int[]{Record.TYPE_A, Record.TYPE_AAAA};
 
         for (int type : typeArray) {
-            DnsUdpResolver resolver = new DnsUdpResolver(servers, type, 5);
+            DnsUdpResolver resolver = new DnsUdpResolver(servers, type, 5, Executors.newFixedThreadPool(6));
             try {
                 Record[] records = resolver.resolve(new Domain(host), NetworkInfo.normal);
                 System.out.println("=== records:" + Arrays.toString(records));

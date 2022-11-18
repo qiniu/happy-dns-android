@@ -32,7 +32,7 @@ public class DnsUdpResolver extends DnsResolver {
     }
 
     @Override
-    DnsResponse request(String server, String host, int recordType) throws IOException {
+    DnsResponse request(RequestCanceller canceller, String server, String host, int recordType) throws IOException {
         double d = Math.random();
         short messageId = (short) (d * 0xFFFF);
         DnsRequest request = new DnsRequest(messageId, recordType, host);
@@ -45,6 +45,16 @@ public class DnsUdpResolver extends DnsResolver {
             DatagramPacket packet = new DatagramPacket(requestData, requestData.length,
                     address, DnsUdpPort);
             socket.setSoTimeout(timeout * 1000);
+
+            final DatagramSocket finalSocket = socket;
+            canceller.addCancelAction(new Runnable() {
+                @Override
+                public void run() {
+                    finalSocket.disconnect();
+                    finalSocket.close();
+                }
+            });
+
             socket.send(packet);
             packet = new DatagramPacket(new byte[1500], 1500);
             socket.receive(packet);

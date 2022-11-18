@@ -52,7 +52,7 @@ public class UdpResolverTest extends TestCase {
         int[] typeArray = new int[]{Record.TYPE_A, Record.TYPE_AAAA};
 
         for (int type : typeArray) {
-            DnsUdpResolver resolver = new DnsUdpResolver(servers, type, 5, Executors.newFixedThreadPool(6));
+            DnsUdpResolver resolver = new DnsUdpResolver(servers, type, 5, Executors.newFixedThreadPool(4));
             try {
                 Record[] records = resolver.resolve(new Domain(host), NetworkInfo.normal);
                 System.out.println("=== records:" + Arrays.toString(records));

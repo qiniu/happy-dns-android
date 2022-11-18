@@ -3,12 +3,15 @@ package com.qiniu.android.dns.dns;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
+import com.qiniu.android.dns.R;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -39,11 +42,14 @@ public abstract class DnsResolver implements IResolver {
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout) {
-        this(servers, recordType, timeout, null);
+        this.recordType = recordType;
+        this.timeout = timeout > 0 ? timeout : DNS_DEFAULT_TIMEOUT;
+        this.servers = servers;
+        this.executorService = null;
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout, ExecutorService executorService) {
-        if (servers != null && servers.length > 0 && executorService == null) {
+        if (servers != null && servers.length > 1 && executorService == null) {
             executorService = defaultExecutorService;
         }
         this.recordType = recordType;
@@ -86,28 +92,26 @@ public abstract class DnsResolver implements IResolver {
             throw new IOException("host can not empty");
         }
 
+        final RequestCanceller canceller = new RequestCanceller();
         if (servers.length == 1 || executorService == null) {
             DnsResponse response = null;
             for (String server : servers) {
-                response = request(server, host, recordType);
+                response = request(canceller, server, host, recordType);
                 if (response != null) {
                     break;
                 }
             }
             return response;
         } else {
-            final DnsResponse[] responses = {null};
-            final IOException[] exceptions = {null};
-            final int[] completedCount = {0};
-            final Object waiter = new Object();
+            final ResponseComposition responseComposition = new ResponseComposition();
 
             // 超时处理
             timeoutExecutorService.schedule(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    synchronized (waiter) {
-                        waiter.notify();
-                        exceptions[0] = new IOException("resolver timeout for server:" + servers + " host:" + host);
+                    synchronized (responseComposition) {
+                        responseComposition.notify();
+                        responseComposition.exception = new IOException("resolver timeout for server:" + servers + " host:" + host);
                     }
                     return null;
                 }
@@ -119,56 +123,87 @@ public abstract class DnsResolver implements IResolver {
                 Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
+                        System.out.println("======= A server:" + server + " =======");
                         DnsResponse response = null;
                         IOException exception = null;
 
                         try {
-                            response = request(server, host, recordType);
+                            response = request(canceller, server, host, recordType);
                         } catch (Exception e) {
                             e.printStackTrace();
                             exception = new IOException(e);
                         }
 
-                        synchronized (waiter) {
-                            completedCount[0] += 1;
+                        synchronized (responseComposition) {
+                            responseComposition.completedCount += 1;
 
-                            if (response != null) {
-                                responses[0] = response;
+                            if (responseComposition.response == null) {
+                                responseComposition.response = response;
                             }
 
-                            if (exception != null) {
-                                exceptions[0] = exception;
+                            if (responseComposition.exception == null) {
+                                responseComposition.exception = exception;
                             }
 
-                            if (completedCount[0] == servers.length || responses[0] != null) {
-                                waiter.notify();
+                            if (responseComposition.completedCount == servers.length || responseComposition.response != null) {
+                                responseComposition.notify();
                             }
                         }
+
+                        System.out.println("======= B server:" + server + " =======");
                     }
                 });
                 futures.add(future);
             }
 
-            synchronized (waiter) {
+            synchronized (responseComposition) {
                 try {
-                    waiter.wait();
+                    responseComposition.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-            for (Future<?> f : futures) {
-                f.cancel(true);
+            canceller.cancel();
+            System.out.println("=========== cancel ===========");
+
+            if (responseComposition.exception != null && responseComposition.response == null) {
+                throw responseComposition.exception;
             }
 
-            if (exceptions[0] != null && responses[0] == null) {
-                throw exceptions[0];
-            }
-
-            return responses[0];
+            return responseComposition.response;
         }
 
     }
 
-    abstract DnsResponse request(String server, String host, int recordType) throws IOException;
+    private static class ResponseComposition {
+        DnsResponse response;
+        IOException exception;
+        int completedCount;
+
+        ResponseComposition() {
+            this.completedCount = 0;
+        }
+    }
+
+    static class RequestCanceller {
+        Queue<Runnable> cancelActions = new ConcurrentLinkedQueue<>();
+
+        void addCancelAction(Runnable cancelAction) {
+            if (cancelAction != null) {
+                cancelActions.add(cancelAction);
+            }
+        }
+
+        void cancel() {
+            for (Runnable cancelAction : cancelActions) {
+                if (cancelAction != null) {
+                    cancelAction.run();
+                    System.out.println("=========== cancel:" + cancelAction + " ===========");
+                }
+            }
+        }
+    }
+
+    abstract DnsResponse request(RequestCanceller canceller, String server, String host, int recordType) throws IOException;
 }

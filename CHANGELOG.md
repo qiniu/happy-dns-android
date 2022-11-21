@@ -1,4 +1,7 @@
 #Changelog
+## 2.0.1 (2021-08-19)
+* 优化多 Server 并发解析
+
 ## 2.0.0 (2021-08-19)
 * 处理加密模式 ECB 不安全问题
 * 删除 com.qiniu.android.dns.http.DnspodEnterprise

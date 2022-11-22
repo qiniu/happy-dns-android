@@ -50,7 +50,11 @@ public class DnsUdpResolver extends DnsResolver {
             canceller.addCancelAction(new Runnable() {
                 @Override
                 public void run() {
-                    finalSocket.disconnect();
+                    try {
+                        finalSocket.disconnect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     try {
                         finalSocket.close();
                     } catch (Exception e) {

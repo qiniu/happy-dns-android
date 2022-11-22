@@ -55,7 +55,11 @@ public class DohResolver extends DnsResolver {
         canceller.addCancelAction(new Runnable() {
             @Override
             public void run() {
-                finalConnection.disconnect();
+                try {
+                    finalConnection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 try {
                     bodyStream.close();
                 } catch (IOException e) {

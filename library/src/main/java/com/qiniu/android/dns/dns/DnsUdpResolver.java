@@ -51,7 +51,11 @@ public class DnsUdpResolver extends DnsResolver {
                 @Override
                 public void run() {
                     finalSocket.disconnect();
-                    finalSocket.close();
+                    try {
+                        finalSocket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 

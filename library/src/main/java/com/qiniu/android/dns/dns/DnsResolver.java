@@ -123,7 +123,6 @@ public abstract class DnsResolver implements IResolver {
                 Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("======= A server:" + server + " =======");
                         DnsResponse response = null;
                         IOException exception = null;
 
@@ -149,8 +148,6 @@ public abstract class DnsResolver implements IResolver {
                                 responseComposition.notify();
                             }
                         }
-
-                        System.out.println("======= B server:" + server + " =======");
                     }
                 });
                 futures.add(future);
@@ -165,7 +162,6 @@ public abstract class DnsResolver implements IResolver {
             }
 
             canceller.cancel();
-            System.out.println("=========== cancel ===========");
 
             if (responseComposition.exception != null && responseComposition.response == null) {
                 throw responseComposition.exception;
@@ -199,7 +195,6 @@ public abstract class DnsResolver implements IResolver {
             for (Runnable cancelAction : cancelActions) {
                 if (cancelAction != null) {
                     cancelAction.run();
-                    System.out.println("=========== cancel:" + cancelAction + " ===========");
                 }
             }
         }

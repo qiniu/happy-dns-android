@@ -51,9 +51,6 @@ public class DohResolver extends DnsResolver {
         httpConn.setRequestProperty( "Accept-Encoding", "");
 
         final DataOutputStream bodyStream = new DataOutputStream(httpConn.getOutputStream());
-        bodyStream.write(requestData);
-        bodyStream.close();
-
         final HttpsURLConnection finalConnection = httpConn;
         canceller.addCancelAction(new Runnable() {
             @Override
@@ -66,6 +63,8 @@ public class DohResolver extends DnsResolver {
                 }
             }
         });
+        bodyStream.write(requestData);
+        bodyStream.close();
 
         int responseCode = httpConn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {

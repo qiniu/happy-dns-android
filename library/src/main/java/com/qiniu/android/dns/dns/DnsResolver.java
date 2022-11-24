@@ -3,7 +3,6 @@ package com.qiniu.android.dns.dns;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
-import com.qiniu.android.dns.R;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;

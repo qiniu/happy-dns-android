@@ -5,8 +5,6 @@ import com.qiniu.android.dns.NetworkInfo;
 import com.qiniu.android.dns.Record;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

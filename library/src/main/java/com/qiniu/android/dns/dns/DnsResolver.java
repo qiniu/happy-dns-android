@@ -3,24 +3,25 @@ package com.qiniu.android.dns.dns;
 import com.qiniu.android.dns.Domain;
 import com.qiniu.android.dns.IResolver;
 import com.qiniu.android.dns.NetworkInfo;
+import com.qiniu.android.dns.R;
 import com.qiniu.android.dns.Record;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class DnsResolver implements IResolver {
 
     private static ScheduledExecutorService timeoutExecutorService = Executors.newSingleThreadScheduledExecutor();
-    private static ExecutorService defaultExecutorService = new ThreadPoolExecutor(0, 4,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    private static ExecutorService defaultExecutorService = Executors.newFixedThreadPool(4);
 
     private final int recordType;
     private final String[] servers;
@@ -41,10 +42,16 @@ public abstract class DnsResolver implements IResolver {
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout) {
-        this(servers, recordType, timeout, (servers != null && servers.length > 0) ? defaultExecutorService : null);
+        this.recordType = recordType;
+        this.timeout = timeout > 0 ? timeout : DNS_DEFAULT_TIMEOUT;
+        this.servers = servers;
+        this.executorService = null;
     }
 
     public DnsResolver(String[] servers, int recordType, int timeout, ExecutorService executorService) {
+        if (servers != null && servers.length > 1 && executorService == null) {
+            executorService = defaultExecutorService;
+        }
         this.recordType = recordType;
         this.timeout = timeout > 0 ? timeout : DNS_DEFAULT_TIMEOUT;
         this.servers = servers;
@@ -85,72 +92,113 @@ public abstract class DnsResolver implements IResolver {
             throw new IOException("host can not empty");
         }
 
+        final RequestCanceller canceller = new RequestCanceller();
         if (servers.length == 1 || executorService == null) {
             DnsResponse response = null;
             for (String server : servers) {
-                response = request(server, host, recordType);
+                response = request(canceller, server, host, recordType);
                 if (response != null) {
                     break;
                 }
             }
             return response;
         } else {
-            final DnsResponse[] response = {null};
-            final IOException[] exceptions = {null};
-            final int[] completedCount = {0};
-            final Object waiter = new Object();
+            final ResponseComposition responseComposition = new ResponseComposition();
 
             // 超时处理
             timeoutExecutorService.schedule(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    synchronized (waiter) {
-                        waiter.notify();
-                        exceptions[0] = new IOException("resolver timeout for server:" + servers.toString() + " host:" + host);
+                    synchronized (responseComposition) {
+                        responseComposition.notify();
+                        responseComposition.exception = new IOException("resolver timeout for server:" + servers + " host:" + host);
                     }
                     return null;
                 }
             }, timeout, TimeUnit.SECONDS);
 
             // 返回一个即结束
+            List<Future<?>> futures = new ArrayList<>();
             for (final String server : servers) {
-                final String serverP = server;
-                executorService.submit(new Runnable() {
+                Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (waiter) {
-                            try {
-                                response[0] = request(serverP, host, recordType);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                exceptions[0] = new IOException(e);
-                            }
-                            completedCount[0] += 1;
+                        DnsResponse response = null;
+                        IOException exception = null;
 
-                            if (completedCount[0] == servers.length || response[0] != null) {
-                                waiter.notify();
+                        try {
+                            response = request(canceller, server, host, recordType);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            exception = new IOException(e);
+                        }
+
+                        synchronized (responseComposition) {
+                            responseComposition.completedCount += 1;
+
+                            if (responseComposition.response == null) {
+                                responseComposition.response = response;
+                            }
+
+                            if (responseComposition.exception == null) {
+                                responseComposition.exception = exception;
+                            }
+
+                            if (responseComposition.completedCount == servers.length || responseComposition.response != null) {
+                                responseComposition.notify();
                             }
                         }
                     }
                 });
+                futures.add(future);
             }
 
-            synchronized (waiter) {
+            synchronized (responseComposition) {
                 try {
-                    waiter.wait();
+                    responseComposition.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-            if (exceptions[0] != null) {
-                throw exceptions[0];
+            canceller.cancel();
+
+            if (responseComposition.exception != null && responseComposition.response == null) {
+                throw responseComposition.exception;
             }
 
-            return response[0];
+            return responseComposition.response;
         }
 
     }
 
-    abstract DnsResponse request(String server, String host, int recordType) throws IOException;
+    private static class ResponseComposition {
+        DnsResponse response;
+        IOException exception;
+        int completedCount;
+
+        ResponseComposition() {
+            this.completedCount = 0;
+        }
+    }
+
+    static class RequestCanceller {
+        Queue<Runnable> cancelActions = new ConcurrentLinkedQueue<>();
+
+        void addCancelAction(Runnable cancelAction) {
+            if (cancelAction != null) {
+                cancelActions.add(cancelAction);
+            }
+        }
+
+        void cancel() {
+            for (Runnable cancelAction : cancelActions) {
+                if (cancelAction != null) {
+                    cancelAction.run();
+                }
+            }
+        }
+    }
+
+    abstract DnsResponse request(RequestCanceller canceller, String server, String host, int recordType) throws IOException;
 }

@@ -1,17 +1,24 @@
 package com.qiniu.android.dns;
 
-import android.test.AndroidTestCase;
-
 import com.qiniu.android.dns.local.Hosts;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by bailong on 15/6/18.
  */
-public class HostsTest extends AndroidTestCase {
+public class HostsTest extends TestCase {
+
+    @Test
     public void testQuery() throws IOException {
         Hosts hosts = new Hosts();
         hosts.put("hello.qiniu.com", new Record("1.1.1.1", Record.TYPE_A, 120));
@@ -28,6 +35,7 @@ public class HostsTest extends AndroidTestCase {
         Assert.assertTrue(r2[0].value.equals("1.1.1.1"));
     }
 
+    @Test
     public void testCnc() throws IOException {
         Hosts hosts = new Hosts();
         hosts.put("hello.qiniu.com", new Record("1.1.1.1", Record.TYPE_A, 120));

@@ -1,11 +1,17 @@
 package com.qiniu.android.dns;
 
-import android.test.AndroidTestCase;
+import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.qiniu.android.dns.dns.DnsUdpResolver;
 import com.qiniu.android.dns.local.AndroidDnsServer;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -15,7 +21,7 @@ import java.util.Arrays;
 /**
  * Created by bailong on 15/6/17.
  */
-public class LocalResolverTest extends AndroidTestCase {
+public class LocalResolverTest extends TestCase {
 
     private void template(String ip) throws UnknownHostException {
         DnsUdpResolver resolver = new DnsUdpResolver(ip);
@@ -42,10 +48,6 @@ public class LocalResolverTest extends AndroidTestCase {
         }
     }
 
-    public void testLocal() {
-        template(AndroidDnsServer.defaultResolver(getContext()));
-    }
-
     //    http://www.alidns.com/
 //    public void testAli() throws UnknownHostException {
 //        template("223.5.5.5");
@@ -66,10 +68,12 @@ public class LocalResolverTest extends AndroidTestCase {
 //        template("1.2.4.8");
 //    }
 
+    @Test
     public void testGoogle() throws UnknownHostException {
         template("8.8.8.8");
     }
 
+    @Test
     public void testDnspod() throws UnknownHostException {
         template("119.29.29.29");
     }
@@ -79,6 +83,7 @@ public class LocalResolverTest extends AndroidTestCase {
 //        template("101.226.4.6");
 //    }
 
+    @Test
     public void testTimeout() throws UnknownHostException {
         DnsUdpResolver resolver = new DnsUdpResolver("8.1.1.1", 5);
         try {

@@ -1,16 +1,18 @@
 package com.qiniu.android.dns;
 
-import android.test.AndroidTestCase;
-
 import com.qiniu.android.dns.dns.DohResolver;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-public class DohTest extends AndroidTestCase {
+public class DohTest extends TestCase {
 
+    @Test
     public void testSimpleDns() {
         String host = "en.wikipedia.org";
         String server = "https://dns.alidns.com/dns-query";
@@ -42,6 +44,7 @@ public class DohTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testMultiDnsServer() {
         String host = "en.wikipedia.org";
         String[] servers = new String[]{"https://dns.alidns.com/dns-query", "https://dns.google/dns-query"};

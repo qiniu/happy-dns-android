@@ -5,6 +5,7 @@ import com.qiniu.android.dns.Record;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +35,7 @@ public class DohResolver extends DnsResolver {
     }
 
     @Override
-    DnsResponse request(String server, String host, int recordType) throws IOException {
+    DnsResponse request(RequestCanceller canceller, String server, String host, int recordType) throws IOException {
         double d = Math.random();
         short messageId = (short) (d * 0xFFFF);
         DnsRequest request = new DnsRequest(messageId, recordType, host);
@@ -49,7 +50,23 @@ public class DohResolver extends DnsResolver {
         httpConn.setRequestProperty("Accept", "application/dns-message");
         httpConn.setRequestProperty( "Accept-Encoding", "");
 
-        DataOutputStream bodyStream = new DataOutputStream(httpConn.getOutputStream());
+        final DataOutputStream bodyStream = new DataOutputStream(httpConn.getOutputStream());
+        final HttpsURLConnection finalConnection = httpConn;
+        canceller.addCancelAction(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    finalConnection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    bodyStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         bodyStream.write(requestData);
         bodyStream.close();
 

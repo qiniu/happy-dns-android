@@ -81,8 +81,8 @@ class DnsResponse extends DnsMessage {
         if (qr == 0) {
             throw new IOException("not a response data");
         }
-
-        opCode = (field0 >> 3) & 0x07;
+        
+        opCode = (field0 >> 3) & 0x0f;  // opCode is 4 bit
         aa = (field0 >> 2) & 0x01;
         rd = field0 & 0x01;
 

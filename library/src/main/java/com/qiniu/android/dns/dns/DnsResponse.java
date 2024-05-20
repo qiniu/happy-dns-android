@@ -201,8 +201,7 @@ class DnsResponse extends DnsMessage {
                     StringBuilder builder = new StringBuilder();
                     for (int i = 0; i < 16; i += 2) {
                         builder.append(i > 0 ? ":" : "");
-                        builder.append(readRecordDataInt8(from + i));
-                        builder.append(readRecordDataInt8(from + i + 1));
+                        Integer.toHexString(readRecordDataInt16(from + i));
                     }
                     dataString = builder.toString();
                 }
